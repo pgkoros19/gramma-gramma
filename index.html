@@ -1,0 +1,3355 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Ηλεκτρονικός ελληνικός γραμματοπίνακας για επικοινωνία με γράμματα: στένσιλ, πίνακας, πληκτρολόγιο, μαθήματα και πρόοδος.">
+<meta name="theme-color" content="#276468">
+<meta name="apple-mobile-web-app-title" content="Γράμμα Γράμμα">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+body { margin: 0; font: 14px system-ui, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>Γράμμα Γράμμα</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+/* Layout: one-screen instrument. App bar, then the partner's card (question or lesson step + spelled text),
+   a tray of word predictions, and the letter sheet filling the rest like a board held up at eye level. */
+:root {
+  --ground: #edf1ee;
+  --surface: #ffffff;
+  --raised: #f6f8f6;
+  --laminate: #fdfdfa;
+  --ink: #182423;
+  --muted: #5b6966;
+  --line: #d5ddd9;
+  --accent: #276468;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(39, 100, 104, .12);
+  --good: #2f7a3e;
+  --warn: #9a6b12;
+  --danger: #a13f2d;
+  --knob: #ffffff;
+  --st1: #a3bcd2;
+  --st2: #abc6a6;
+  --st3: #dcc493;
+  --st4: #d9b0b6;
+  --st5: #bfb5da;
+  --st6: #9fc6c3;
+  --st7: #cfc6b0;
+  --window: #fcfcf7;
+  --window-ink: #182423;
+  --key-bg: #ffffff;
+  --key-ink: #182423;
+  --key-edge: #c3ccc8;
+  --sheen: rgba(255, 255, 255, .55);
+  --shadow: rgba(20, 40, 38, .22);
+  --hc-bg: #ffffff;
+  --hc-ink: #000000;
+
+  --f-display: 'Literata', Georgia, 'Times New Roman', serif;
+  --f-ui: 'Commissioner', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --key: 120px;
+  --gap: 18px;
+  --ctl: 40px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #0f1617;
+    --surface: #172122;
+    --raised: #1c2829;
+    --laminate: #1c2728;
+    --ink: #e2eae7;
+    --muted: #93a39f;
+    --line: #2c3a3b;
+    --accent: #7dbfbc;
+    --accent-ink: #0b1818;
+    --accent-soft: rgba(125, 191, 188, .16);
+    --good: #7cc48a;
+    --warn: #d9b25a;
+    --danger: #e48c77;
+    --knob: #e9f0ed;
+    --st1: #3b5469;
+    --st2: #3e583d;
+    --st3: #6a5934;
+    --st4: #6b3f47;
+    --st5: #4d4670;
+    --st6: #2f5b58;
+    --st7: #5b5444;
+    --window: #0e1516;
+    --window-ink: #e8efec;
+    --key-bg: #1f2b2c;
+    --key-ink: #e8efec;
+    --key-edge: #0a1011;
+    --sheen: rgba(255, 255, 255, .05);
+    --shadow: rgba(0, 0, 0, .6);
+    --hc-bg: #000000;
+    --hc-ink: #ffffff;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #0f1617;
+  --surface: #172122;
+  --raised: #1c2829;
+  --laminate: #1c2728;
+  --ink: #e2eae7;
+  --muted: #93a39f;
+  --line: #2c3a3b;
+  --accent: #7dbfbc;
+  --accent-ink: #0b1818;
+  --accent-soft: rgba(125, 191, 188, .16);
+  --good: #7cc48a;
+  --warn: #d9b25a;
+  --danger: #e48c77;
+  --knob: #e9f0ed;
+  --st1: #3b5469;
+  --st2: #3e583d;
+  --st3: #6a5934;
+  --st4: #6b3f47;
+  --st5: #4d4670;
+  --st6: #2f5b58;
+  --st7: #5b5444;
+  --window: #0e1516;
+  --window-ink: #e8efec;
+  --key-bg: #1f2b2c;
+  --key-ink: #e8efec;
+  --key-edge: #0a1011;
+  --sheen: rgba(255, 255, 255, .05);
+  --shadow: rgba(0, 0, 0, .6);
+  --hc-bg: #000000;
+  --hc-ink: #ffffff;
+}
+
+/* ---------- student themes ----------
+   Each student picks a look in Settings. A theme only swaps the tokens and adds a quiet drawing
+   to the page background (--decor); the letters themselves stay plain and high-contrast. */
+body[data-skin="notebook"] {
+  --ground: #FBF8F1; --surface: #FFFFFF; --raised: #F7F3EA; --laminate: #FFFDF8;
+  --ink: #24324A; --muted: #66707F; --line: #E4DED0;
+  --accent: #2F5FA8; --accent-ink: #FFFFFF; --accent-soft: rgba(47, 95, 168, .12);
+  --st1: #F6D9A8; --st2: #BFD8C2; --st3: #F2C9C4; --st4: #C9D7EE; --st5: #E3D3EE; --st6: #F3E3B5; --st7: #D7E7E4;
+  --window: #FFFDF8; --window-ink: #24324A; --key-bg: #FFFFFF; --key-ink: #24324A; --key-edge: #D9D2C2;
+  --rule: #DCE6F2; --margin: #F2C9C4;
+  --decor: linear-gradient(to right, transparent 46px, var(--margin) 46px 48px, transparent 48px),
+           repeating-linear-gradient(to bottom, transparent 0 31px, var(--rule) 31px 32px);
+}
+body[data-skin="aegean"] {
+  --ground: #EAF4FA; --surface: #FFFFFF; --raised: #F3F9FC; --laminate: #FFFFFF;
+  --ink: #123A55; --muted: #557287; --line: #CFE4F1;
+  --accent: #1F6FA3; --accent-ink: #FFFFFF; --accent-soft: rgba(31, 111, 163, .12);
+  --st1: #BFE0F2; --st2: #FFE6A3; --st3: #F7D3C4; --st4: #CDE8DC; --st5: #D8D3F0; --st6: #A9D3EA; --st7: #F3E7D3;
+  --window: #FFFFFF; --window-ink: #123A55; --key-bg: #FFFFFF; --key-ink: #123A55; --key-edge: #C3DCEB;
+  --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 60'%3E%3Cpath d='M0 26 Q30 14 60 26 T120 26 T180 26 T240 26' stroke='%23B9DDF0' stroke-width='3' fill='none'/%3E%3Cpath d='M0 44 Q30 32 60 44 T120 44 T180 44 T240 44' stroke='%23D3EAF6' stroke-width='3' fill='none'/%3E%3C/svg%3E") left bottom / 240px 60px repeat-x,
+           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='26' fill='%23FFE6A3'/%3E%3Cpath d='M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8' stroke='%23FFE6A3' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") right 3% top 42% / 84px 84px no-repeat;
+}
+body[data-skin="garden"] {
+  --ground: #EFF4EA; --surface: #FFFFFF; --raised: #F5F8F1; --laminate: #FAFCF7;
+  --ink: #24402C; --muted: #5E7363; --line: #D6E2CC;
+  --accent: #3E7D4F; --accent-ink: #FFFFFF; --accent-soft: rgba(62, 125, 79, .12);
+  --st1: #CFE3C2; --st2: #F4C9D6; --st3: #F8DCA8; --st4: #C6DDEB; --st5: #DCD0EE; --st6: #E7EBB6; --st7: #F1D5C2;
+  --window: #FAFCF7; --window-ink: #24402C; --key-bg: #FFFFFF; --key-ink: #24402C; --key-edge: #CBD9C0;
+  --kr: .28;
+  --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 170'%3E%3Cpath d='M30 170 C30 128 38 96 60 68' stroke='%239CC08A' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M60 68 C80 58 92 72 82 86 C70 94 54 86 60 68Z' fill='%23B8D6A6'/%3E%3Cpath d='M36 118 C14 110 6 126 16 134 C28 140 40 132 36 118Z' fill='%23CFE3C2'/%3E%3Cpath d='M45 94 C66 88 74 104 64 112 C52 116 40 108 45 94Z' fill='%23B8D6A6'/%3E%3C/svg%3E") left 6px bottom 0 / 120px 170px no-repeat,
+           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cg fill='%23F4C9D6'%3E%3Ccircle cx='30' cy='30' r='7'/%3E%3Ccircle cx='42' cy='30' r='7'/%3E%3Ccircle cx='36' cy='20' r='7'/%3E%3Ccircle cx='36' cy='40' r='7'/%3E%3C/g%3E%3Ccircle cx='36' cy='30' r='5' fill='%23F8DCA8'/%3E%3Ccircle cx='75' cy='42' r='6' fill='%23F8DCA8'/%3E%3Ccircle cx='86' cy='33' r='4' fill='%23F4C9D6'/%3E%3C/svg%3E") right 10px bottom 8px / 100px 60px no-repeat;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body[data-skin="notebook"] {
+    --ground: #171B22; --surface: #1F242D; --raised: #252B35; --laminate: #222833;
+    --ink: #E9E6DD; --muted: #A2A8B3; --line: #333A47;
+    --accent: #8DB2EE; --accent-ink: #0D1A2E; --accent-soft: rgba(141, 178, 238, .16);
+    --st1: #6B5530; --st2: #3F5A44; --st3: #6B4340; --st4: #3C4C6E; --st5: #54456A; --st6: #66592F; --st7: #3B5752;
+    --window: #12161C; --window-ink: #EDEAE2; --key-bg: #262C37; --key-ink: #EDEAE2; --key-edge: #0C0F14;
+    --rule: #232B38; --margin: #4A3236;
+  }
+  :root:not([data-theme="light"]) body[data-skin="aegean"] {
+    --ground: #0E1D28; --surface: #142836; --raised: #19303F; --laminate: #17303F;
+    --ink: #E3F0F8; --muted: #93AFC2; --line: #24435A;
+    --accent: #7CC4EE; --accent-ink: #08202F; --accent-soft: rgba(124, 196, 238, .16);
+    --st1: #275372; --st2: #6B5A2A; --st3: #6B4135; --st4: #2C5547; --st5: #3E3A66; --st6: #1F4E6B; --st7: #5A4E3A;
+    --window: #0A1720; --window-ink: #E8F3FA; --key-bg: #1A3242; --key-ink: #E8F3FA; --key-edge: #06111A;
+    --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 60'%3E%3Cpath d='M0 26 Q30 14 60 26 T120 26 T180 26 T240 26' stroke='%2321465E' stroke-width='3' fill='none'/%3E%3Cpath d='M0 44 Q30 32 60 44 T120 44 T180 44 T240 44' stroke='%2318374C' stroke-width='3' fill='none'/%3E%3C/svg%3E") left bottom / 240px 60px repeat-x,
+             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='26' fill='%235C5128'/%3E%3Cpath d='M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8' stroke='%235C5128' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") right 3% top 42% / 84px 84px no-repeat;
+  }
+  :root:not([data-theme="light"]) body[data-skin="garden"] {
+    --ground: #121A14; --surface: #19241B; --raised: #1E2C21; --laminate: #1D2A20;
+    --ink: #E4EEE3; --muted: #9DB1A0; --line: #2C3D30;
+    --accent: #8FCB9C; --accent-ink: #0D1F12; --accent-soft: rgba(143, 203, 156, .16);
+    --st1: #3D5A3A; --st2: #6A3F4C; --st3: #6B5730; --st4: #33506A; --st5: #4C4168; --st6: #59602E; --st7: #644A39;
+    --window: #0D140F; --window-ink: #EAF2E8; --key-bg: #213024; --key-ink: #EAF2E8; --key-edge: #080D09;
+    --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 170'%3E%3Cpath d='M30 170 C30 128 38 96 60 68' stroke='%233E5E3B' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M60 68 C80 58 92 72 82 86 C70 94 54 86 60 68Z' fill='%232F4A31'/%3E%3Cpath d='M36 118 C14 110 6 126 16 134 C28 140 40 132 36 118Z' fill='%23283F2A'/%3E%3Cpath d='M45 94 C66 88 74 104 64 112 C52 116 40 108 45 94Z' fill='%232F4A31'/%3E%3C/svg%3E") left 6px bottom 0 / 120px 170px no-repeat,
+             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cg fill='%235A3742'%3E%3Ccircle cx='30' cy='30' r='7'/%3E%3Ccircle cx='42' cy='30' r='7'/%3E%3Ccircle cx='36' cy='20' r='7'/%3E%3Ccircle cx='36' cy='40' r='7'/%3E%3C/g%3E%3Ccircle cx='36' cy='30' r='5' fill='%235C4C2A'/%3E%3Ccircle cx='75' cy='42' r='6' fill='%235C4C2A'/%3E%3Ccircle cx='86' cy='33' r='4' fill='%235A3742'/%3E%3C/svg%3E") right 10px bottom 8px / 100px 60px no-repeat;
+  }
+}
+:root[data-theme="dark"] body[data-skin="notebook"] {
+  --ground: #171B22; --surface: #1F242D; --raised: #252B35; --laminate: #222833;
+  --ink: #E9E6DD; --muted: #A2A8B3; --line: #333A47;
+  --accent: #8DB2EE; --accent-ink: #0D1A2E; --accent-soft: rgba(141, 178, 238, .16);
+  --st1: #6B5530; --st2: #3F5A44; --st3: #6B4340; --st4: #3C4C6E; --st5: #54456A; --st6: #66592F; --st7: #3B5752;
+  --window: #12161C; --window-ink: #EDEAE2; --key-bg: #262C37; --key-ink: #EDEAE2; --key-edge: #0C0F14;
+  --rule: #232B38; --margin: #4A3236;
+}
+:root[data-theme="dark"] body[data-skin="aegean"] {
+  --ground: #0E1D28; --surface: #142836; --raised: #19303F; --laminate: #17303F;
+  --ink: #E3F0F8; --muted: #93AFC2; --line: #24435A;
+  --accent: #7CC4EE; --accent-ink: #08202F; --accent-soft: rgba(124, 196, 238, .16);
+  --st1: #275372; --st2: #6B5A2A; --st3: #6B4135; --st4: #2C5547; --st5: #3E3A66; --st6: #1F4E6B; --st7: #5A4E3A;
+  --window: #0A1720; --window-ink: #E8F3FA; --key-bg: #1A3242; --key-ink: #E8F3FA; --key-edge: #06111A;
+  --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 60'%3E%3Cpath d='M0 26 Q30 14 60 26 T120 26 T180 26 T240 26' stroke='%2321465E' stroke-width='3' fill='none'/%3E%3Cpath d='M0 44 Q30 32 60 44 T120 44 T180 44 T240 44' stroke='%2318374C' stroke-width='3' fill='none'/%3E%3C/svg%3E") left bottom / 240px 60px repeat-x,
+           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='26' fill='%235C5128'/%3E%3Cpath d='M50 6v12M50 82v12M6 50h12M82 50h12M19 19l8 8M73 73l8 8M19 81l8-8M73 27l8-8' stroke='%235C5128' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") right 3% top 42% / 84px 84px no-repeat;
+}
+:root[data-theme="dark"] body[data-skin="garden"] {
+  --ground: #121A14; --surface: #19241B; --raised: #1E2C21; --laminate: #1D2A20;
+  --ink: #E4EEE3; --muted: #9DB1A0; --line: #2C3D30;
+  --accent: #8FCB9C; --accent-ink: #0D1F12; --accent-soft: rgba(143, 203, 156, .16);
+  --st1: #3D5A3A; --st2: #6A3F4C; --st3: #6B5730; --st4: #33506A; --st5: #4C4168; --st6: #59602E; --st7: #644A39;
+  --window: #0D140F; --window-ink: #EAF2E8; --key-bg: #213024; --key-ink: #EAF2E8; --key-edge: #080D09;
+  --decor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 170'%3E%3Cpath d='M30 170 C30 128 38 96 60 68' stroke='%233E5E3B' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M60 68 C80 58 92 72 82 86 C70 94 54 86 60 68Z' fill='%232F4A31'/%3E%3Cpath d='M36 118 C14 110 6 126 16 134 C28 140 40 132 36 118Z' fill='%23283F2A'/%3E%3Cpath d='M45 94 C66 88 74 104 64 112 C52 116 40 108 45 94Z' fill='%232F4A31'/%3E%3C/svg%3E") left 6px bottom 0 / 120px 170px no-repeat,
+           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60'%3E%3Cg fill='%235A3742'%3E%3Ccircle cx='30' cy='30' r='7'/%3E%3Ccircle cx='42' cy='30' r='7'/%3E%3Ccircle cx='36' cy='20' r='7'/%3E%3Ccircle cx='36' cy='40' r='7'/%3E%3C/g%3E%3Ccircle cx='36' cy='30' r='5' fill='%235C4C2A'/%3E%3Ccircle cx='75' cy='42' r='6' fill='%235C4C2A'/%3E%3Ccircle cx='86' cy='33' r='4' fill='%235A3742'/%3E%3C/svg%3E") right 10px bottom 8px / 100px 60px no-repeat;
+}
+/* the theme drawing sits behind everything and never takes a touch */
+body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: var(--decor, none); }
+
+/* High contrast swaps only the letter surfaces, in either theme and over any student theme */
+:root body.hc.hc.hc {
+  --window: var(--hc-bg);
+  --window-ink: var(--hc-ink);
+  --key-bg: var(--hc-bg);
+  --key-ink: var(--hc-ink);
+  --laminate: var(--hc-bg);
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--f-ui);
+  font-size: 15px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: .45; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* the app is sized to the window; the scroll is only a safety net for windows too small to fit the board */
+.app { height: 100%; display: flex; flex-direction: column; overflow-y: auto; position: relative; z-index: 1; }
+.wrap {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* locked: everything a student could hit by accident goes inert */
+body.locked .lockable { pointer-events: none; opacity: .38; }
+
+/* ---------- app bar ---------- */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar-in {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  padding-block: 9px;
+}
+.brand { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+.mark { width: 34px; height: 34px; flex: none; }
+.brand-name { font-family: var(--f-display); font-weight: 700; font-size: 19px; letter-spacing: .005em; line-height: 1.1; display: block; }
+.brand-sub { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.profile-chip {
+  height: var(--ctl);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  border-radius: 999px;
+  padding: 0 12px 0 6px;
+  font-weight: 600;
+  font-size: 14px;
+  max-width: 220px;
+  margin-right: auto;
+}
+.profile-chip .avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink);
+  font-size: 13px; font-weight: 700; flex: none;
+}
+.profile-chip .avatar.emoji { background: var(--raised); box-shadow: inset 0 0 0 1px var(--line); font-size: 18px; }
+.profile-chip .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* optional picture per student, chosen in Students */
+.list > li.pf { flex-wrap: wrap; }
+.av-btn {
+  width: 42px; height: 42px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  border: 1px solid var(--line); background: var(--raised); font-size: 22px; line-height: 1;
+}
+.av-btn.letter { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-size: 16px; font-weight: 700; }
+.av-pick { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+.av-pick button {
+  width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface);
+  font-size: 22px; line-height: 1; display: grid; place-items: center;
+}
+.av-pick button.txt { width: auto; padding: 0 12px; font-size: 13px; font-weight: 500; }
+.av-pick button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+.seg {
+  display: inline-flex;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg button {
+  height: calc(var(--ctl) - 8px);
+  border: 0;
+  background: transparent;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--muted);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 0 0 1px var(--line);
+}
+.seg.sm button { height: 26px; padding: 0 9px; font-size: 12.5px; }
+.seg .num {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--line);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.seg button[aria-pressed="true"] .num { background: var(--accent); color: var(--accent-ink); }
+.seg .chev { width: 14px; height: 14px; }
+
+.menu-wrap { position: relative; display: inline-flex; }
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 15;
+  min-width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px -16px var(--shadow);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+}
+.menu button:hover, .menu button[aria-pressed="true"] { background: var(--raised); }
+.menu button[aria-pressed="true"] { color: var(--accent); }
+.menu small { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+.tools { display: flex; gap: 2px; flex-wrap: wrap; }
+.icon-btn {
+  height: var(--ctl);
+  min-width: var(--ctl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  padding: 0 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  position: relative;
+}
+.icon-btn:hover { background: var(--raised); border-color: var(--line); }
+.icon-btn.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+/* press-and-hold progress ring */
+.hold-ring {
+  position: absolute; inset: -3px; border-radius: 12px; pointer-events: none;
+  background: conic-gradient(var(--accent) calc(var(--p, 0) * 1turn), transparent 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  padding: 3px;
+}
+
+/* ---------- main column ---------- */
+.main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-block: 12px;
+}
+
+/* partner card */
+.strip {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .04);
+  padding: 8px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.strip-top { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; }
+.q-row { flex: 1 1 260px; min-width: 0; display: flex; align-items: center; gap: 10px; }
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+#question {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 6px 0;
+  font-size: 15px;
+}
+#question:focus { outline: none; }
+.q-row:focus-within .eyebrow { color: var(--accent); }
+.support { display: flex; align-items: center; gap: 8px; }
+
+.lesson-head { flex: 1 1 320px; min-width: 0; display: flex; align-items: center; gap: 8px 10px; flex-wrap: wrap; }
+.lesson-head .eyebrow { color: var(--accent); max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+.lb-step { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.type-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; letter-spacing: .02em;
+  border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px 2px 7px;
+  white-space: nowrap; color: var(--ink); background: var(--raised);
+}
+.type-chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted)); }
+.type-chip[data-k="text"] { --c: var(--muted); }
+.type-chip[data-k="known"] { --c: var(--accent); }
+.type-chip[data-k="choice"] { --c: var(--st3); }
+.type-chip[data-k="semi"] { --c: var(--st5); }
+.type-chip[data-k="open"] { --c: var(--st4); }
+.lb-ctl { display: flex; gap: 4px; margin-left: auto; }
+.lb-text {
+  font-family: var(--f-display);
+  font-size: clamp(17px, 1.8vw, 21px);
+  line-height: 1.5;
+  font-weight: 500;
+  max-height: 7.6em;
+  overflow-y: auto;
+  padding: 4px 0 8px;
+  max-width: 90ch;
+  text-wrap: pretty;
+}
+.lb-text.passage { font-weight: 400; }
+
+.out-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.output {
+  flex: 1 1 320px;
+  min-width: 0;
+  min-height: 1.25em;
+  max-height: 2.5em;
+  overflow-y: auto;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(26px, 3.6vw, 42px);
+  line-height: 1.25;
+  letter-spacing: .05em;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.output .ph { color: var(--muted); font-weight: 500; letter-spacing: 0; font-size: .5em; font-family: var(--f-ui); }
+.output .fresh { color: var(--accent); }
+.caret {
+  display: inline-block;
+  width: 3px;
+  height: .9em;
+  margin-left: 2px;
+  vertical-align: -.08em;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: blink 1.1s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.act {
+  height: var(--ctl);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 0 12px;
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.act:hover { background: var(--raised); }
+.act.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.act.primary:hover { filter: brightness(1.06); }
+.act.warn { border-color: var(--danger); color: var(--danger); }
+.act.sm { height: 32px; padding: 0 10px; font-size: 13px; }
+.act.icon { width: var(--ctl); padding: 0; }
+.act.sm.icon { width: 32px; }
+.act kbd {
+  font-family: var(--f-ui);
+  font-size: 10px;
+  letter-spacing: .06em;
+  opacity: .7;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+/* word predictions */
+.predbar {
+  display: flex;
+  gap: 8px;
+  min-height: 54px;
+  align-items: stretch;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pred {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: clamp(18px, 2.4vw, 27px);
+  letter-spacing: .04em;
+  overflow-wrap: anywhere;
+  touch-action: manipulation;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+}
+.pred:hover { border-color: var(--accent); }
+.pred .pre { color: var(--muted); font-weight: 500; }
+.pred-hint {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  padding-left: 4px;
+}
+.pred-hint .ico { width: 16px; height: 16px; }
+
+/* ---------- board area ---------- */
+.board-area {
+  flex: 1;
+  min-height: 200px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.stage {
+  grid-row: 1;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.tabs { grid-row: 2; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+@media (min-width: 640px) and (min-aspect-ratio: 5/4) {
+  .board-area.with-tabs { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-rows: minmax(0, 1fr); }
+  .with-tabs .tabs { grid-row: 1; grid-column: 1; flex-direction: column; justify-content: center; flex-wrap: nowrap; overflow-y: auto; }
+  .with-tabs .stage { grid-row: 1; grid-column: 2; }
+  /* an empty third column the width of the tabs keeps the sheet centred on the screen */
+  .with-tabs::after { content: ""; grid-row: 1; grid-column: 3; width: var(--tabs-w, 0px); }
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 8px 16px 8px 10px;
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+  flex: none;
+}
+.tab .chip { width: 26px; height: 26px; border-radius: 7px; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); flex: none; }
+.tab b { display: block; font-size: 18px; font-weight: 600; letter-spacing: .04em; }
+.tab small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
+.tab[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+.sheet {
+  position: relative;
+  padding: calc(var(--key) * .28);
+  border-radius: calc(var(--key) * .22);
+}
+.sheet-body { display: flex; gap: var(--gap); }
+.rows { display: flex; flex-direction: column; gap: var(--gap); }
+.row { display: flex; justify-content: center; gap: var(--gap); }
+
+.key {
+  --w: 1;
+  width: calc(var(--key) * var(--w) + var(--gap) * (var(--w) - 1));
+  height: var(--key);
+  display: grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  font-family: var(--f-ui);
+  font-weight: 600;
+  font-size: calc(var(--key) * .5);
+  line-height: 1;
+  touch-action: manipulation;
+  transition: box-shadow .12s, outline-color .12s;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+.key.side {
+  width: calc(var(--key) * var(--w));
+  height: auto;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+.key.pressing, .pred.pressing { outline: 3px dashed var(--accent); }
+.key.pressing.armed, .pred.pressing.armed, body.nohold .key.pressing, body.nohold .pred.pressing { outline-style: solid; }
+.key.hit, .pred.hit { animation: hit .5s ease-out; }
+body.calm .key.hit, body.calm .pred.hit { animation: hitcalm .35s ease-out; }
+@keyframes hit {
+  0% { background: var(--accent); color: var(--accent-ink); transform: scale(.95); }
+  100% { transform: scale(1); }
+}
+@keyframes hitcalm {
+  0% { outline: 3px solid var(--accent); }
+  100% { outline: 3px solid transparent; }
+}
+
+/* stage 1: stencils, translucent plastic with cut windows and a thumb notch */
+.sheet.stencil {
+  background:
+    linear-gradient(155deg, var(--sheen), transparent 45%),
+    var(--st);
+  padding-top: calc(var(--key) * .58);
+  box-shadow: 0 22px 44px -24px var(--shadow), 0 2px 4px -2px var(--shadow), inset 0 0 0 1px rgba(0, 0, 0, .06);
+}
+.sheet.stencil::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--key) * .9);
+  height: calc(var(--key) * .3);
+  border-radius: 0 0 999px 999px;
+  background: var(--ground);
+  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, .14);
+}
+.sheet.st1 { --st: var(--st1); }
+.sheet.st2 { --st: var(--st2); }
+.sheet.st3 { --st: var(--st3); }
+.sheet.st4 { --st: var(--st4); }
+.sheet.st5 { --st: var(--st5); }
+.sheet.st6 { --st: var(--st6); }
+.sheet.st7 { --st: var(--st7); }
+.sheet-label {
+  position: absolute;
+  top: calc(var(--key) * .17);
+  left: calc(var(--key) * .3);
+  right: calc(var(--key) * .3);
+  display: flex;
+  justify-content: space-between;
+  font-size: clamp(11px, calc(var(--key) * .12), 16px);
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink);
+  opacity: .62;
+  pointer-events: none;
+}
+.sheet.stencil .key {
+  background: var(--window);
+  color: var(--window-ink);
+  border-radius: calc(var(--key) * var(--kr, .18));
+  box-shadow: inset 0 calc(var(--key) * .035) calc(var(--key) * .07) rgba(0, 0, 0, .22), inset 0 0 0 1px rgba(0, 0, 0, .1);
+}
+
+/* stage 2: the laminated alphabet board, also used for numbers */
+.sheet.board {
+  background:
+    linear-gradient(160deg, var(--sheen), transparent 40%),
+    var(--laminate);
+  border: 1px solid var(--line);
+  box-shadow: 0 22px 44px -26px var(--shadow), 0 2px 4px -2px var(--shadow);
+}
+.sheet.board .key {
+  background: transparent;
+  color: var(--key-ink);
+  border: 2px solid var(--line);
+  border-radius: calc(var(--key) * .14);
+}
+.sheet.board .key.op { color: var(--accent); }
+.sheet.stencil .key.wide, .sheet.board .key.wide, .sheet.kbd .key.wide {
+  font-size: clamp(12px, calc(var(--key) * .2), 30px);
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* stage 3: keyboard */
+.sheet.kbd {
+  background: var(--laminate);
+  border: 1px solid var(--line);
+  box-shadow: 0 22px 44px -26px var(--shadow), 0 2px 4px -2px var(--shadow);
+}
+.sheet.kbd .key {
+  background: var(--key-bg);
+  color: var(--key-ink);
+  border-radius: calc(var(--key) * .14);
+  font-size: calc(var(--key) * .44);
+  box-shadow: 0 calc(var(--key) * .05) 0 var(--key-edge), inset 0 0 0 1px var(--line);
+}
+.sheet.kbd .key.fn { color: var(--muted); }
+.sheet.kbd .key .ico { width: 45%; height: 45%; }
+
+/* card boards: yes/no, feelings, pain, choices, phrases */
+.sheet.cards {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.card-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 12px;
+}
+.sheet.cards .key {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  background: var(--key-bg);
+  color: var(--key-ink);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  font-family: var(--f-display);
+  font-size: var(--card-fs, 32px);
+  font-weight: 600;
+  letter-spacing: .04em;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .3em;
+  text-align: center;
+  overflow-wrap: normal;
+  word-break: normal;
+  overflow: hidden;
+  box-shadow: 0 2px 0 var(--key-edge);
+}
+.sheet.cards.phrases .key { font-size: calc(var(--card-fs, 32px) * .8); line-height: 1.2; }
+.sheet.cards .key .face { width: var(--face, 1.9em); height: var(--face, 1.9em); flex: none; }
+.face * { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.face .dot { fill: currentColor; stroke: none; }
+.face .blush { fill: var(--st4); stroke: none; opacity: .7; }
+.sheet.cards.yesno .key { font-size: calc(var(--card-fs, 32px) * 1.4); letter-spacing: .1em; }
+.sheet.cards .key.yes { border-color: var(--good); }
+.sheet.cards .key.no { border-color: var(--danger); }
+.card-caption {
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 500;
+}
+.pain-scale {
+  display: grid;
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+  gap: 8px;
+  height: clamp(56px, 18%, 120px);
+}
+.sheet.cards .pain-scale .key {
+  font-family: var(--f-ui);
+  font-size: clamp(18px, calc(var(--card-fs, 32px) * 1.1), 44px);
+  border: 0;
+  color: #15201f;
+  background: var(--pc);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .18);
+  border-radius: 12px;
+}
+.choice-edit {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.choice-edit input {
+  flex: 1 1 140px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 15px;
+}
+.empty-board {
+  margin: auto;
+  max-width: 420px;
+  text-align: center;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.empty-board b { display: block; color: var(--ink); font-family: var(--f-display); font-size: 20px; margin-bottom: 4px; }
+
+/* ---------- drawer ---------- */
+.scrim { position: fixed; inset: 0; background: rgba(8, 18, 18, .38); z-index: 20; }
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(580px, 100%);
+  background: var(--surface);
+  border-left: 1px solid var(--line);
+  box-shadow: -20px 0 40px -30px var(--shadow);
+  z-index: 21;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  transform: translateX(100%);
+  transition: transform .25s ease;
+  visibility: hidden;
+}
+.drawer.open { transform: none; visibility: visible; }
+.drawer-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px 10px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-tabs { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.drawer-tabs .seg { flex-wrap: nowrap; }
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 20px 28px;
+  display: flex;
+  flex-direction: column;
+}
+.pane-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 16px; }
+.pane-head h2 { margin: 0 auto 0 0; font-family: var(--f-display); font-size: 21px; font-weight: 600; }
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.group:last-child { border-bottom: 0; }
+.group h3 {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+.field { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.field.stack { flex-direction: column; align-items: stretch; gap: 8px; }
+.field > span { display: flex; flex-direction: column; gap: 2px; font-weight: 500; }
+.field small { color: var(--muted); font-size: 12.5px; line-height: 1.45; font-weight: 400; }
+.field select, .field input[type="range"] { max-width: 50%; }
+select, .inp, textarea.inp {
+  border: 1px solid var(--line);
+  background: var(--raised);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 14px;
+}
+.inp { width: 100%; box-sizing: border-box; }
+textarea.inp { resize: vertical; line-height: 1.5; }
+.pick { display: flex; gap: 6px; align-items: center; }
+.pick select { flex: 1; min-width: 0; max-width: none; }
+.row-form { display: flex; gap: 8px; }
+.row-form .inp { flex: 1; }
+
+/* theme picker: each option shows the theme's own colours, whatever the current theme */
+.skins { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.skin {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 10px;
+  font-weight: 500; font-size: 14px;
+}
+.skin[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+.skin .chips { display: flex; flex: none; }
+.skin .chips i { width: 16px; height: 22px; border-radius: 5px; margin-right: -4px; box-shadow: 0 0 0 1.5px var(--surface); }
+
+/* switches */
+input[type="checkbox"].sw {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--line);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  transition: background .15s;
+}
+input[type="checkbox"].sw::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--knob);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  transition: transform .15s;
+}
+input[type="checkbox"].sw:checked { background: var(--accent); }
+input[type="checkbox"].sw:checked::before { transform: translateX(18px); }
+input[type="range"] { accent-color: var(--accent); }
+
+.note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+  background: var(--raised);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.note strong { color: var(--ink); font-weight: 600; }
+.note.warn { color: var(--ink); box-shadow: inset 3px 0 0 var(--danger); }
+
+/* lists of things: lessons, phrases, students */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.list > li { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.list > li .grow { flex: 1; min-width: 0; }
+.list .t { font-weight: 600; font-size: 15px; }
+.list .m { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.list .btns { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
+.tag {
+  display: inline-block;
+  font-family: var(--f-ui);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 1px 7px;
+  margin-left: 6px;
+  vertical-align: 2px;
+  font-weight: 500;
+}
+.tag.cur { border-color: var(--accent); color: var(--accent); }
+
+/* gradebook */
+.log-tools { display: flex; gap: 6px; flex-wrap: wrap; padding-top: 16px; }
+.log-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.log-day { padding: 18px 0 2px; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.log-item {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.log-item > time { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; padding-top: 3px; grid-row: 1 / span 3; }
+.log-item .meta { grid-column: 2; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.log-item .q { font-size: 13.5px; color: var(--muted); grid-column: 2; }
+.log-item .a { font-family: var(--f-display); font-weight: 600; font-size: 20px; letter-spacing: .04em; grid-column: 2; overflow-wrap: anywhere; }
+.log-item .exp { font-size: 12.5px; color: var(--muted); grid-column: 2; }
+.log-item .grade { grid-column: 2; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.log-item .note-inp { flex: 1 1 160px; min-width: 0; border: 0; border-bottom: 1px dashed var(--line); background: transparent; padding: 4px 2px; font-size: 13px; }
+.log-item .note-inp:focus { outline: none; border-bottom-color: var(--accent); }
+.log-item .del { grid-column: 3; grid-row: 1; align-self: start; border: 0; background: transparent; color: var(--muted); font-size: 13px; padding: 4px 6px; border-radius: 6px; }
+.log-item .del:hover { background: var(--raised); }
+.log-item .del.arm { color: var(--danger); font-weight: 600; }
+.gchip {
+  height: 28px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface);
+  padding: 0 10px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;
+}
+.gchip[aria-pressed="true"][data-g="full"] { background: var(--good); border-color: var(--good); color: var(--accent-ink); }
+.gchip[aria-pressed="true"][data-g="half"] { background: var(--warn); border-color: var(--warn); color: var(--accent-ink); }
+.gchip[aria-pressed="true"][data-g="none"] { background: var(--danger); border-color: var(--danger); color: var(--accent-ink); }
+.empty { color: var(--muted); font-size: 14px; line-height: 1.5; padding: 16px 0; }
+#copyArea { width: 100%; min-height: 140px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); padding: 8px; font-size: 13px; margin-top: 12px; }
+
+/* progress */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.tile { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--raised); }
+.tile .v { font-family: var(--f-display); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; }
+.tile .l { font-size: 12px; color: var(--muted); margin-top: 2px; line-height: 1.35; }
+.chart-box { position: relative; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+.chart-box .grid-l { stroke: var(--line); stroke-width: 1; }
+.chart-box .axis-t { fill: var(--muted); font-size: 11px; font-family: var(--f-ui); }
+.chart-box .ln { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.chart-box .ar { fill: var(--accent-soft); stroke: none; }
+.chart-box .pt { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
+.chart-box .pt.last { fill: var(--accent); }
+.chart-box .hit { fill: transparent; stroke: none; }
+.chart-box .cross { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--ink); color: var(--surface);
+  font-size: 12px; padding: 6px 9px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, -110%);
+  font-variant-numeric: tabular-nums;
+}
+.letter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 6px; }
+.lcell {
+  border-radius: 9px; padding: 6px 4px; text-align: center; border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) var(--a, 0%), var(--surface));
+}
+.lcell b { display: block; font-size: 18px; font-weight: 600; }
+.lcell span { font-size: 11.5px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.lcell.none span { color: var(--muted); }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.tbl th { text-align: left; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 6px 8px 6px 0; border-bottom: 1px solid var(--line); }
+.tbl td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.tbl td.n, .tbl th.n { text-align: right; }
+
+/* lesson editor */
+.step-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; background: var(--raised); }
+.step-card .hd { display: flex; align-items: center; gap: 6px; }
+.step-card .hd .no { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; width: 22px; }
+.step-card .hd select { flex: 1; max-width: 220px; }
+.step-card .hd .sp { flex: 1; }
+.steps { display: flex; flex-direction: column; gap: 10px; }
+.ai-box { display: flex; flex-direction: column; gap: 10px; border: 1px dashed var(--accent); border-radius: 12px; padding: 12px; }
+
+.guide { font-size: 14.5px; line-height: 1.6; }
+.guide > div { padding-block: 16px; border-bottom: 1px solid var(--line); max-width: 62ch; }
+.guide > div:last-child { border-bottom: 0; }
+.guide h4 { margin: 0 0 6px; font-family: var(--f-display); font-weight: 600; font-size: 18px; text-wrap: balance; }
+.guide p { margin: 0; }
+.guide p + p { margin-top: 8px; }
+.guide ol, .guide ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.guide .credit { margin-top: 10px; font-size: 13px; color: var(--muted); }
+.guide .credit strong { color: var(--ink); font-weight: 600; }
+.guide kbd { font-family: var(--f-ui); font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; background: var(--raised); }
+
+/* break screen */
+.break {
+  position: fixed; inset: 0; z-index: 40; background: var(--ground);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px;
+  padding: 24px;
+}
+.breath {
+  width: min(46vmin, 320px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0 60%, transparent 61%);
+  box-shadow: 0 0 0 2px var(--accent) inset;
+  animation: breathe 8s ease-in-out infinite;
+  display: grid; place-items: center;
+  font-family: var(--f-display); font-size: clamp(22px, 4vmin, 34px); font-weight: 600; color: var(--accent);
+}
+@keyframes breathe { 0%, 100% { transform: scale(.82); } 50% { transform: scale(1); } }
+.break .timer { font-size: 15px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: var(--surface);
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 50;
+  max-width: calc(100% - 32px);
+  box-sizing: border-box;
+  text-align: center;
+  box-shadow: 0 10px 30px -10px var(--shadow);
+}
+
+/* PDF pages are rendered off screen in fixed print colours, whatever the theme */
+.pdf-root {
+  position: fixed; left: -12000px; top: 0; width: 794px; box-sizing: border-box; padding: 48px 52px;
+  background: #ffffff; color: #1b2726; font-family: 'Commissioner', 'Segoe UI', sans-serif; font-size: 12.5px; line-height: 1.5;
+}
+.pdf-root h1 { font-family: 'Literata', Georgia, serif; font-size: 26px; margin: 0 0 2px; font-weight: 700; }
+.pdf-root h2 { font-family: 'Literata', Georgia, serif; font-size: 17px; margin: 22px 0 8px; font-weight: 600; }
+.pdf-root .sub { color: #5b6966; font-size: 12px; }
+.pdf-root .brandline { display: flex; justify-content: space-between; border-bottom: 2px solid #276468; padding-bottom: 10px; margin-bottom: 16px; color: #276468; font-weight: 600; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.pdf-root .ptiles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.pdf-root .ptile { border: 1px solid #d5ddd9; border-radius: 8px; padding: 8px 10px; }
+.pdf-root .ptile .v { font-family: 'Literata', Georgia, serif; font-size: 20px; font-weight: 600; }
+.pdf-root .ptile .l { font-size: 10.5px; color: #5b6966; }
+.pdf-root .tr { display: grid; gap: 8px; padding: 6px 0; border-bottom: 1px solid #e3e8e5; }
+.pdf-root .tr.h { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #5b6966; font-weight: 600; border-bottom: 1px solid #b9c4bf; }
+.pdf-root .ans { font-family: 'Literata', Georgia, serif; font-weight: 600; letter-spacing: .03em; }
+.pdf-root .step { padding: 8px 0; border-bottom: 1px solid #e3e8e5; }
+.pdf-root .step .k { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #276468; font-weight: 600; }
+.pdf-root .step .txt { font-family: 'Literata', Georgia, serif; font-size: 14px; }
+.pdf-root .line { border-bottom: 1px solid #b9c4bf; height: 26px; }
+.pdf-root .lg { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+.pdf-root .lg div { border: 1px solid #d5ddd9; border-radius: 6px; text-align: center; padding: 4px 2px; }
+.pdf-root .lg b { display: block; font-size: 15px; }
+.pdf-root .foot { margin-top: 24px; color: #5b6966; font-size: 10.5px; }
+
+@media (max-width: 1600px) {
+  .tools .lbl, .brand-sub { display: none; }
+}
+/* short windows (laptops, a browser with toolbars): tighten everything around the board */
+@media (max-height: 820px) {
+  :root { --ctl: 36px; }
+  .topbar-in { padding-block: 6px; }
+  .mark { width: 30px; height: 30px; }
+  .main { padding-block: 8px; gap: 8px; }
+  .strip { padding: 5px 12px 8px; gap: 2px; }
+  .out-row { padding-top: 6px; }
+  .output { font-size: clamp(22px, 3vw, 32px); }
+  .predbar { min-height: 44px; }
+  .pred { font-size: clamp(16px, 2vw, 22px); padding: 4px 8px; }
+  .lb-text { font-size: 16px; max-height: 3.1em; padding: 2px 0 4px; }
+  .board-area { gap: 8px; }
+  .tab { padding: 6px 12px 6px 8px; gap: 9px; }
+  .tab .chip { width: 22px; height: 22px; }
+  .tab b { font-size: 16px; }
+}
+@media (max-height: 620px) {
+  :root { --ctl: 32px; }
+  .brand-text { display: none; }
+  .seg button { font-size: 13px; }
+  #question { padding: 2px 0; font-size: 14px; }
+  .output { max-height: 1.3em; }
+  .predbar { min-height: 38px; }
+  .lb-text { max-height: 1.6em; }
+  .tab small { display: none; }
+}
+@media (max-width: 1100px) {
+  .act .lbl { display: none; }
+  .act.primary .lbl { display: inline; }
+  .act kbd { display: none; }
+  .brand-text { display: none; }
+}
+@media (max-width: 760px) {
+  .seg button { padding: 0 9px; font-size: 13px; }
+  .seg .num { display: none; }
+  .support .eyebrow { display: none; }
+}
+.seg .short { display: none; }
+/* phones, upright: two short rows on top, one compact card, and everything else for the board */
+@media (max-width: 600px) {
+  .brand-text, .seg .num, .tools .opt, .seg .long { display: none; }
+  .seg .short { display: inline; }
+  .topbar-in { gap: 6px 8px; padding-block: 6px; }
+  .profile-chip { max-width: 150px; }
+  .tools { order: 3; }
+  #stage-seg { order: 4; flex: 1 1 100%; }
+  #stage-seg > button, #stage-seg .menu-wrap { flex: 1 1 0; justify-content: center; }
+  #stage-seg .menu-wrap > button { width: 100%; justify-content: center; }
+  #more-label { max-width: 76px; overflow: hidden; text-overflow: ellipsis; }
+  .main { padding-block: 8px; gap: 8px; }
+  .strip { padding: 6px 10px 8px; }
+  .strip-top { flex-wrap: nowrap; gap: 8px; }
+  .q-row { flex: 1 1 0; }
+  .q-row .eyebrow { display: none; }
+  .output { flex-basis: 100%; font-size: 26px; }
+  .output .ph { font-size: 13px; }
+  .actions { flex-wrap: nowrap; width: 100%; gap: 6px; }
+  .act:not(.primary) { width: var(--ctl); padding: 0; justify-content: center; flex: none; }
+  .act.primary { flex: 1; min-width: 0; justify-content: center; }
+  .predbar { min-height: 40px; overflow-x: auto; scrollbar-width: none; }
+  .pred { flex: 1 0 auto; font-size: 17px; padding: 4px 10px; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; scrollbar-width: none; }
+  .tab { padding: 6px 12px 6px 8px; gap: 8px; }
+  .tab small { display: none; }
+  .tab b { font-size: 16px; }
+}
+/* phones on their side: one bar on top, the card in a single line, stencil tabs beside the board */
+@media (max-height: 500px) and (min-aspect-ratio: 5/4) {
+  .brand-text, .tools .opt, .seg .num, .seg .long { display: none; }
+  .seg .short { display: inline; }
+  .topbar-in { flex-wrap: nowrap; padding-block: 4px; gap: 8px; }
+  .tools { flex-wrap: nowrap; }
+  .seg button { padding: 0 8px; }
+  .profile-chip { max-width: 140px; }
+  .main { padding-block: 6px; gap: 6px; }
+  .strip { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 4px 10px; }
+  .q-row { display: none; }
+  .support .eyebrow { display: none; }
+  .lb-text { flex-basis: 100%; order: 3; max-height: 1.5em; font-size: 15px; padding: 0; }
+  .out-row { flex: 1 1 300px; border-top: 0; padding-top: 0; flex-wrap: nowrap; }
+  .output { flex: 1 1 0; font-size: 24px; max-height: 1.3em; }
+  .output .ph { font-size: 13px; }
+  .actions { flex-wrap: nowrap; }
+  .act { height: 34px; }
+  .act.icon, .act:not(.primary) { padding: 0 8px; }
+  .board-area { min-height: 140px; }
+  .act .lbl, .act kbd { display: none; }
+  .act.primary .lbl { display: inline; }
+  .predbar { min-height: 34px; }
+  .pred { font-size: 16px; padding: 2px 8px; }
+  .tab small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .key.hit, .pred.hit { animation: hitcalm .35s ease-out; }
+  .caret, .breath { animation: none; }
+  .drawer, input[type="checkbox"].sw, input[type="checkbox"].sw::before { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <div class="brand">
+        <svg class="mark" viewBox="0 0 34 34" aria-hidden="true">
+          <rect x="1" y="1" width="32" height="32" rx="9" style="fill: var(--accent)"/>
+          <rect x="7" y="9" width="20" height="18" rx="4.5" style="fill: var(--surface)"/>
+          <path d="M13.5 22V14h7.5" style="fill: none; stroke: var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13 1h8v2.6a4 4 0 0 1-8 0z" style="fill: var(--surface)" opacity=".55"/>
+        </svg>
+        <div class="brand-text"><span class="brand-name">Γράμμα Γράμμα</span><span class="brand-sub">επικοινωνία με γράμματα</span></div>
+      </div>
+      <button type="button" class="profile-chip lockable" id="profile-chip" data-open="profiles" title="Αλλαγή μαθητή">
+        <span class="avatar" id="profile-initial">Μ</span><span class="nm" id="profile-name">Μαθητής</span>
+      </button>
+      <div class="seg lockable" id="stage-seg" role="group" aria-label="Πίνακας">
+        <button type="button" id="stage-stencil" data-stage="stencil"><span class="num">1</span>Στένσιλ</button>
+        <button type="button" id="stage-board" data-stage="board"><span class="num">2</span>Πίνακας</button>
+        <button type="button" id="stage-kbd" data-stage="kbd"><span class="num">3</span><span class="long">Πληκτρολόγιο</span><span class="short">Πληκτρ.</span></button>
+        <span class="menu-wrap">
+          <button type="button" id="more-btn" aria-haspopup="true" aria-expanded="false"><span id="more-label">Άλλοι πίνακες</span><svg class="ico chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <div class="menu" id="more-menu" hidden></div>
+        </span>
+      </div>
+      <div class="tools">
+        <button type="button" class="icon-btn lockable opt" data-open="lessons" title="Μαθήματα" aria-label="Μαθήματα">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg><span class="lbl">Μαθήματα</span>
+        </button>
+        <button type="button" class="icon-btn lockable opt" data-open="log" title="Ημερολόγιο και βαθμολόγιο" aria-label="Ημερολόγιο">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6h.01M4 12h.01M4 18h.01" stroke-width="3"/></svg><span class="lbl">Ημερολόγιο</span>
+        </button>
+        <button type="button" class="icon-btn lockable opt" data-open="progress" title="Πρόοδος" aria-label="Πρόοδος">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M5 16l4-5 4 3 6-7"/></svg><span class="lbl">Πρόοδος</span>
+        </button>
+        <button type="button" class="icon-btn lockable" data-open="settings" title="Ρυθμίσεις" aria-label="Ρυθμίσεις">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl">Ρυθμίσεις</span>
+        </button>
+        <button type="button" class="icon-btn lockable" id="break-btn" title="Διάλειμμα" aria-label="Διάλειμμα">
+          <svg class="ico" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.5" height="14" rx="1"/><rect x="14" y="5" width="3.5" height="14" rx="1"/></svg>
+        </button>
+        <button type="button" class="icon-btn" id="lock-btn" title="Κλείδωμα ελέγχων" aria-label="Κλείδωμα ελέγχων">
+          <svg class="ico" viewBox="0 0 24 24" id="lock-ico"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/></svg>
+          <span class="hold-ring" id="lock-ring" hidden></span>
+        </button>
+        <button type="button" class="icon-btn lockable opt" id="fullscreen" title="Πλήρης οθόνη" aria-label="Πλήρης οθόνη">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main wrap">
+    <section class="strip" aria-label="Κείμενο">
+      <div class="strip-top">
+        <div class="q-row lockable" id="q-row">
+          <label class="eyebrow" for="question">Ερώτηση</label>
+          <input id="question" type="text" autocomplete="off" placeholder="Γράψε την ερώτηση του μαθήματος (προαιρετικό)">
+        </div>
+        <div class="lesson-head" id="lesson-head" hidden>
+          <span class="eyebrow" id="lb-title"></span>
+          <span class="lb-step" id="lb-step"></span>
+          <span class="type-chip" id="lb-type"></span>
+          <div class="lb-ctl lockable">
+            <button type="button" class="act sm icon" id="lb-prev" title="Προηγούμενο βήμα" aria-label="Προηγούμενο βήμα"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <button type="button" class="act sm" id="lb-say" title="Διάβασε το βήμα"><svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>Διάβασε</button>
+            <button type="button" class="act sm icon" id="lb-next" title="Επόμενο βήμα" aria-label="Επόμενο βήμα"><svg class="ico" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+            <button type="button" class="act sm" id="lb-end">Τέλος</button>
+          </div>
+        </div>
+        <div class="support lockable" title="Πώς στηρίζεται η ταμπλέτα. Καταγράφεται σε κάθε γράμμα.">
+          <span class="eyebrow">Ταμπλέτα</span>
+          <div class="seg sm" role="group" aria-label="Στήριξη ταμπλέτας">
+            <button type="button" id="sup-stand" data-sup="stand">Σε βάση</button>
+            <button type="button" id="sup-held" data-sup="held">Στο χέρι</button>
+          </div>
+        </div>
+      </div>
+      <div class="lb-text" id="lb-text" hidden></div>
+      <div class="out-row">
+        <div class="output" id="output" aria-live="polite"></div>
+        <div class="actions lockable">
+          <button type="button" class="act" id="btn-space" title="Κενό">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4h16v-4"/></svg><span class="lbl">Κενό</span>
+          </button>
+          <button type="button" class="act" id="btn-back" title="Σβήσε το τελευταίο γράμμα" aria-label="Σβήσε το τελευταίο γράμμα">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z"/><path d="M12 9l6 6M18 9l-6 6"/></svg>
+          </button>
+          <button type="button" class="act" id="btn-say" title="Διάβασε όλο το κείμενο">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg><span class="lbl">Διάβασε</span>
+          </button>
+          <button type="button" class="act" id="btn-clear" title="Καθάρισε το κείμενο">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg><span class="lbl">Καθάρισε</span>
+          </button>
+          <button type="button" class="act primary" id="btn-save" title="Αποθήκευση στο ημερολόγιο">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/></svg><span class="lbl" id="save-lbl">Αποθήκευση</span> <kbd>Enter</kbd>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="predbar" id="predbar" aria-label="Προτάσεις λέξεων"></div>
+
+    <main class="board-area" id="board-area">
+      <div class="stage" id="stage">
+        <div class="sheet" id="sheet"></div>
+      </div>
+      <div class="tabs" id="tabs" role="group" aria-label="Στένσιλ"></div>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-label="Πίνακας συνεργάτη">
+  <div class="drawer-head">
+    <div class="drawer-tabs">
+      <div class="seg" role="group" aria-label="Ενότητα">
+        <button type="button" data-pane="lessons">Μαθήματα</button>
+        <button type="button" data-pane="log">Ημερολόγιο</button>
+        <button type="button" data-pane="progress">Πρόοδος</button>
+        <button type="button" data-pane="phrases">Φράσεις</button>
+        <button type="button" data-pane="profiles">Μαθητές</button>
+        <button type="button" data-pane="settings">Ρυθμίσεις</button>
+        <button type="button" data-pane="guide">Οδηγός</button>
+      </div>
+    </div>
+    <button type="button" class="icon-btn" id="close-drawer" title="Κλείσιμο" aria-label="Κλείσιμο">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+
+  <!-- lessons -->
+  <div class="drawer-body" id="pane-lessons" hidden>
+    <div id="lessons-list-view">
+      <div class="pane-head">
+        <h2>Μαθήματα</h2>
+        <button type="button" class="act" id="ai-open" hidden>
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/></svg>Με βοήθεια AI
+        </button>
+        <button type="button" class="act primary" id="lesson-new">Νέο μάθημα</button>
+      </div>
+      <div class="ai-box" id="ai-box" hidden style="margin-top: 14px">
+        <label class="field stack" for="ai-topic"><span>Θέμα<small>Για παράδειγμα: Το ηλιακό σύστημα, Ο Μέγας Αλέξανδρος, Πώς δουλεύει ένα ηφαίστειο.</small></span><input class="inp" id="ai-topic" type="text" autocomplete="off"></label>
+        <label class="field" for="ai-level"><span>Επίπεδο</span>
+          <select id="ai-level">
+            <option value="μαθητή δημοτικού (6-9 ετών)">Δημοτικό, μικρές τάξεις</option>
+            <option value="μαθητή δημοτικού (9-12 ετών)" selected>Δημοτικό, μεγάλες τάξεις</option>
+            <option value="μαθητή γυμνασίου">Γυμνάσιο</option>
+            <option value="έφηβο λυκείου ή ενήλικα">Λύκειο και ενήλικες</option>
+          </select></label>
+        <div class="row-form"><button type="button" class="act primary" id="ai-go">Δημιουργία μαθήματος</button><button type="button" class="act" id="ai-cancel">Άκυρο</button></div>
+        <p class="note" id="ai-status" hidden></p>
+      </div>
+      <ul class="list" id="lesson-list"></ul>
+      <p class="note" style="margin-top: 16px">Ένα μάθημα έχει τμήματα κειμένου που διαβάζει ο συνεργάτης και ερωτήσεις μετά από κάθε τμήμα: πρώτα <strong>γνωστές</strong> (η απάντηση βρίσκεται στο κείμενο), ή <strong>επιλογής</strong>, μετά <strong>ημι-ανοιχτές</strong> και στο τέλος <strong>ανοιχτές</strong>. Οι απαντήσεις μπαίνουν στο ημερολόγιο και βαθμολογούνται.</p>
+    </div>
+    <div id="lesson-editor" hidden>
+      <div class="pane-head"><h2 id="ed-heading">Νέο μάθημα</h2></div>
+      <div class="group">
+        <label class="field stack" for="ed-title"><span>Τίτλος</span><input class="inp" id="ed-title" type="text" autocomplete="off"></label>
+        <div class="steps" id="ed-steps"></div>
+        <div class="row-form">
+          <button type="button" class="act" id="ed-add-text">+ Κείμενο</button>
+          <button type="button" class="act" id="ed-add-q">+ Ερώτηση</button>
+        </div>
+      </div>
+      <div class="row-form" style="padding-top: 14px">
+        <button type="button" class="act primary" id="ed-save">Αποθήκευση μαθήματος</button>
+        <button type="button" class="act" id="ed-cancel">Άκυρο</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- log / gradebook -->
+  <div class="drawer-body" id="pane-log" hidden>
+    <div class="pane-head"><h2>Ημερολόγιο και βαθμολόγιο</h2></div>
+    <div class="log-tools">
+      <button type="button" class="act sm" id="log-copy">Αντιγραφή</button>
+      <button type="button" class="act sm" id="log-csv">Βαθμολόγιο CSV</button>
+      <button type="button" class="act sm warn" id="log-clear">Διαγραφή όλων</button>
+    </div>
+    <textarea id="copyArea" readonly hidden></textarea>
+    <ol class="log-list" id="log-list"></ol>
+  </div>
+
+  <!-- progress -->
+  <div class="drawer-body" id="pane-progress" hidden>
+    <div class="pane-head">
+      <h2>Πρόοδος</h2>
+      <div class="seg sm" role="group" aria-label="Περίοδος">
+        <button type="button" data-period="7">7 ημέρες</button>
+        <button type="button" data-period="30">30 ημέρες</button>
+        <button type="button" data-period="0">Όλα</button>
+      </div>
+    </div>
+    <div class="group">
+      <div class="tiles" id="pr-tiles"></div>
+    </div>
+    <div class="group">
+      <h3>Γράμματα ανά λεπτό, ανά συνεδρία</h3>
+      <div class="chart-box" id="pr-chart"></div>
+    </div>
+    <div class="group">
+      <h3>Ακρίβεια ανά γράμμα</h3>
+      <p class="note" style="margin:0">Το ποσοστό δείχνει πόσες φορές το γράμμα έμεινε χωρίς να σβηστεί. Στις γνωστές ερωτήσεις μετράει και αν ήταν το σωστό γράμμα για την απάντηση.</p>
+      <div class="letter-grid" id="pr-letters"></div>
+    </div>
+    <div class="group">
+      <h3>Απαντήσεις ανά είδος ερώτησης</h3>
+      <div style="overflow-x:auto"><table class="tbl" id="pr-types"></table></div>
+    </div>
+    <div class="group">
+      <h3>Αναφορές και αντίγραφα</h3>
+      <div class="row-form" style="flex-wrap: wrap">
+        <button type="button" class="act primary" id="pr-pdf">Αναφορά PDF</button>
+        <button type="button" class="act" id="pr-csv">Βαθμολόγιο CSV</button>
+        <button type="button" class="act" id="pr-backup">Αντίγραφο ασφαλείας</button>
+        <button type="button" class="act" id="pr-restore">Επαναφορά από αρχείο</button>
+        <input type="file" id="restore-file" accept=".json,application/json" hidden>
+      </div>
+      <p class="note">Το αντίγραφο ασφαλείας κρατά όλους τους μαθητές, τα μαθήματα και το ιστορικό σε ένα αρχείο. Με την επαναφορά τα μεταφέρεις σε άλλη συσκευή, για παράδειγμα από τον υπολογιστή στην ταμπλέτα.</p>
+    </div>
+  </div>
+
+  <!-- phrases -->
+  <div class="drawer-body" id="pane-phrases" hidden>
+    <div class="pane-head"><h2>Έτοιμες φράσεις</h2><button type="button" class="act sm" id="ph-reset">Επαναφορά προεπιλογών</button></div>
+    <p class="note" style="margin-top: 14px">Οι φράσεις εμφανίζονται στον πίνακα «Φράσεις». Είναι για γρήγορες ανάγκες. Η μέθοδος στηρίζεται στο ότι ο μαθητής γράφει ο ίδιος, γι' αυτό καλό είναι να μένουν λίγες.</p>
+    <div class="row-form" style="padding-top: 14px"><input class="inp" id="ph-new" type="text" autocomplete="off" placeholder="Νέα φράση, π.χ. Θέλω να πάω έξω"><button type="button" class="act primary" id="ph-add">Προσθήκη</button></div>
+    <ul class="list" id="ph-list"></ul>
+  </div>
+
+  <!-- profiles -->
+  <div class="drawer-body" id="pane-profiles" hidden>
+    <div class="pane-head"><h2>Μαθητές</h2></div>
+    <p class="note" style="margin-top: 14px">Κάθε μαθητής έχει δικές του ρυθμίσεις, λέξεις, φράσεις, ημερολόγιο και πρόοδο. Τα μαθήματα είναι κοινά για όλους.</p>
+    <ul class="list" id="pf-list"></ul>
+    <div class="row-form" style="padding-top: 14px"><input class="inp" id="pf-new" type="text" autocomplete="off" placeholder="Όνομα νέου μαθητή"><button type="button" class="act primary" id="pf-add">Προσθήκη</button></div>
+  </div>
+
+  <!-- settings -->
+  <div class="drawer-body" id="pane-settings" hidden>
+    <div class="group">
+      <h3>Στένσιλ</h3>
+      <label class="field" for="set-setSize"><span>Γράμματα σε κάθε στένσιλ<small>Λιγότερα γράμματα σημαίνει μεγαλύτερους στόχους. Ξεκινήστε από λίγα και αυξήστε σταδιακά.</small></span><select id="set-setSize"></select></label>
+    </div>
+    <div class="group">
+      <h3>Φωνή</h3>
+      <label class="field" for="set-speakLetter"><span>Εκφώνηση κάθε γράμματος<small>Η συσκευή λέει το γράμμα, όπως θα το έλεγε ο συνεργάτης.</small></span><input type="checkbox" class="sw" id="set-speakLetter"></label>
+      <label class="field" for="set-speakWord"><span>Εκφώνηση λέξης στο κενό</span><input type="checkbox" class="sw" id="set-speakWord"></label>
+      <div class="field stack">
+        <label for="set-voiceEl"><span>Φωνή <small id="count-el"></small></span></label>
+        <div class="pick"><select id="set-voiceEl"></select><button type="button" class="act sm" id="test-el">Δοκιμή</button></div>
+      </div>
+      <label class="field" for="set-rate"><span>Ταχύτητα<small id="rate-val"></small></span><input type="range" id="set-rate" min="0.6" max="1.3" step="0.05"></label>
+      <label class="field" for="set-pitch"><span>Τόνος φωνής<small id="pitch-val"></small></span><input type="range" id="set-pitch" min="0.7" max="1.3" step="0.05"></label>
+      <p class="note warn" id="voice-warn" hidden></p>
+      <p class="note" id="voice-tips">
+        <strong>Πιο φυσικές ελληνικές φωνές.</strong> Οι φωνές έρχονται από τη συσκευή και τον περιηγητή.
+        Στα Windows άνοιξε την εφαρμογή στον <strong>Microsoft Edge</strong>, που έχει τις φυσικές φωνές Αθηνά και Νέστορα (θέλουν internet).
+        Στο iPad: Ρυθμίσεις › Προσβασιμότητα › Εκφώνηση περιεχομένου › Φωνές › Ελληνικά › <strong>Melina (Βελτιωμένη)</strong>.
+        Στο Android: Ρυθμίσεις › Μετατροπή κειμένου σε ομιλία › Υπηρεσίες ομιλίας Google › Ελληνικά.
+      </p>
+    </div>
+    <div class="group">
+      <h3>Αφή</h3>
+      <label class="field" for="set-hold"><span>Χρόνος κράτησης<small>Πόσο πρέπει να μείνει το δάχτυλο πάνω στο γράμμα. Φιλτράρει τα τυχαία αγγίγματα.</small></span>
+        <select id="set-hold"><option value="0">Άμεσα</option><option value="120">0,12 δευτ.</option><option value="250">0,25 δευτ.</option><option value="500">0,5 δευτ.</option><option value="800">0,8 δευτ.</option></select></label>
+      <label class="field" for="set-lock"><span>Παύση μετά την επιλογή<small>Αγνοεί δεύτερο άγγιγμα που έρχεται αμέσως μετά.</small></span>
+        <select id="set-lock"><option value="0">Καμία</option><option value="300">0,3 δευτ.</option><option value="600">0,6 δευτ.</option><option value="1000">1 δευτ.</option></select></label>
+      <label class="field" for="set-spaceOnBoard"><span>Πλήκτρο κενού στα στένσιλ και στον πίνακα<small>Το πληκτρολόγιο έχει πάντα κενό.</small></span><input type="checkbox" class="sw" id="set-spaceOnBoard"></label>
+    </div>
+    <div class="group">
+      <h3>Πρόβλεψη λέξεων</h3>
+      <label class="field" for="set-predict"><span>Προτάσεις λέξεων<small>Πάνω από τον πίνακα εμφανίζονται λέξεις που ξεκινούν με τα γράμματα που γράφτηκαν. Με ένα άγγιγμα η λέξη συμπληρώνεται και μπαίνει κενό.</small></span><input type="checkbox" class="sw" id="set-predict"></label>
+      <label class="field" for="set-predMin"><span>Προτάσεις μετά από<small>Περισσότερα γράμματα σημαίνει λιγότερη καθοδήγηση από την εφαρμογή.</small></span>
+        <select id="set-predMin"><option value="1">1 γράμμα</option><option value="2">2 γράμματα</option><option value="3">3 γράμματα</option></select></label>
+      <label class="field" for="set-autoSpace"><span>Αυτόματο κενό<small>Όταν η λέξη ολοκληρωθεί και δεν υπάρχει μεγαλύτερη γνωστή λέξη που να ξεκινά έτσι, το κενό μπαίνει μόνο του. Το ⌫ το αφαιρεί.</small></span><input type="checkbox" class="sw" id="set-autoSpace"></label>
+      <label class="field stack" for="set-custom"><span>Δικές μου λέξεις<small>Ονόματα, μέρη και αγαπημένα θέματα. Εμφανίζονται πρώτες στις προτάσεις.</small></span>
+        <textarea class="inp" id="set-custom" rows="4" placeholder="Γιώργος Ελένη Νίκος&#10;Θεσσαλονίκη κολυμβητήριο"></textarea></label>
+      <p class="note">Η εφαρμογή μαθαίνει τις λέξεις που γράφονται συχνά και τις ανεβάζει στις προτάσεις. Μια λέξη που δεν υπάρχει στο λεξικό εμφανίζεται μετά τη δεύτερη φορά.</p>
+      <div><button type="button" class="act" id="forget-learned">Ξέχασε τις λέξεις που έμαθε</button></div>
+    </div>
+    <div class="group">
+      <h3>Εμφάνιση</h3>
+      <div class="field stack">
+        <span>Θέμα<small>Χρώματα και ένα ήσυχο σχέδιο στο φόντο. Κάθε μαθητής έχει το δικό του.</small></span>
+        <div class="skins" id="skin-pick" role="group" aria-label="Θέμα"></div>
+      </div>
+      <label class="field" for="set-size"><span>Μέγεθος γραμμάτων<small id="size-val"></small></span><input type="range" id="set-size" min="55" max="100" step="5"></label>
+      <label class="field" for="set-lower"><span>Κείμενο με πεζά<small>Τα γράμματα του πίνακα μένουν κεφαλαία.</small></span><input type="checkbox" class="sw" id="set-lower"></label>
+      <label class="field" for="set-hc"><span>Υψηλή αντίθεση</span><input type="checkbox" class="sw" id="set-hc"></label>
+      <label class="field" for="set-calm"><span>Ήπια ανατροφοδότηση<small>Λεπτό περίγραμμα αντί για χρωματικό αναβόσβημα.</small></span><input type="checkbox" class="sw" id="set-calm"></label>
+    </div>
+  </div>
+
+  <!-- guide -->
+  <div class="drawer-body guide" id="pane-guide" hidden>
+    <div>
+      <p class="note" style="margin-top: 4px"><strong>Μόνο για εκπαιδευτικούς σκοπούς.</strong> Το Γράμμα Γράμμα είναι εργαλείο εξάσκησης και επικοινωνίας με γράμματα. Δεν είναι ιατροτεχνολογικό προϊόν και δεν αντικαθιστά την αξιολόγηση ή την καθοδήγηση από ειδικό. Τα στατιστικά και οι αναφορές δείχνουν πώς χρησιμοποιήθηκε η εφαρμογή και δεν αποτελούν κλινική αξιολόγηση. Η εφαρμογή δεν συνδέεται με κανέναν οργανισμό ή δημιουργό μεθόδου επικοινωνίας. Όλα τα δεδομένα μένουν μόνο σε αυτή τη συσκευή.</p>
+      <p class="credit">Δημιουργία: <strong>Πέτρος Γκόρος</strong> · © 2026</p>
+    </div>
+    <div>
+      <h4>Πώς δουλεύει</h4>
+      <p>Ο μαθητής δείχνει γράμματα ένα ένα. Ο συνεργάτης κρατά την ταμπλέτα σταθερή, διαβάζει δυνατά κάθε γράμμα και λέει τη λέξη μόλις ολοκληρωθεί. Η επιλογή γίνεται όταν το δάχτυλο ή η γραφίδα σηκωθεί πάνω στο ίδιο γράμμα.</p>
+      <p>Η ταμπλέτα δεν έχει την αίσθηση του κομμένου πλαστικού. Για τα πρώτα βήματα πολλοί θεραπευτές προτιμούν τα χάρτινα ή πλαστικά στένσιλ και περνούν στην ταμπλέτα όταν ο μαθητής γράφει πιο άνετα. Μια γραφίδα βοηθά να μοιάζει η κίνηση με το μολύβι.</p>
+    </div>
+    <div>
+      <h4>Τα στάδια</h4>
+      <ol>
+        <li><strong>Στένσιλ.</strong> Λίγα, μεγάλα γράμματα σε κάθε πλαίσιο: 4, 8 ή 12. Το κενό βρίσκεται πάντα στη δεξιά πλευρά. Ο συνεργάτης αλλάζει πλαίσιο από τις καρτέλες ή με τα βέλη.</li>
+        <li><strong>Πίνακας.</strong> Όλο το αλφάβητο σε τρεις σειρές, με την ίδια σειρά που είχαν τα στένσιλ των 8.</li>
+        <li><strong>Πληκτρολόγιο.</strong> Διάταξη πληκτρολογίου με αριθμούς, στίξη και διαγραφή.</li>
+      </ol>
+      <p>Στο «Άλλοι πίνακες» υπάρχουν αριθμοί, Ναι / Όχι, συναισθήματα, κλίμακα πόνου, γραπτές επιλογές και έτοιμες φράσεις.</p>
+    </div>
+    <div>
+      <h4>Μάθημα</h4>
+      <p>Από τα Μαθήματα ξεκινάς ένα μάθημα. Στην κορυφή φαίνεται κάθε βήμα: το κείμενο για να το διαβάσεις ή η ερώτηση. Σε ερωτήσεις επιλογής ο πίνακας γίνεται κάρτες με τις επιλογές. Με την Αποθήκευση η απάντηση μπαίνει στο βαθμολόγιο και προχωράς στο επόμενο βήμα. Οι γνωστές ερωτήσεις βαθμολογούνται αυτόματα. Τις υπόλοιπες τις βαθμολογείς στο Ημερολόγιο.</p>
+    </div>
+    <div>
+      <h4>Ανεξαρτησία</h4>
+      <p>Στην κορυφή διάλεξε αν η ταμπλέτα είναι <strong>σε βάση</strong> ή <strong>στο χέρι</strong> του συνεργάτη. Η επιλογή καταγράφεται σε κάθε γράμμα και φαίνεται στην Πρόοδο και στην αναφορά PDF. Έτσι φαίνεται πόσο από το γράψιμο έγινε χωρίς να κρατά κανείς τον πίνακα.</p>
+    </div>
+    <div>
+      <h4>Κλείδωμα και διάλειμμα</h4>
+      <p>Το λουκέτο κλειδώνει τα κουμπιά του συνεργάτη, ώστε ο μαθητής να μην αλλάζει κατά λάθος ρυθμίσεις. Για ξεκλείδωμα κράτα το λουκέτο πατημένο για ένα δευτερόλεπτο. Το κουμπί διαλείμματος ανοίγει μια ήρεμη οθόνη με αργή αναπνοή.</p>
+    </div>
+    <div>
+      <h4>Πρόβλεψη λέξεων</h4>
+      <p>Μετά από λίγα γράμματα εμφανίζονται έως τέσσερις λέξεις πάνω από τον πίνακα. Ένα άγγιγμα σε μία από αυτές τη συμπληρώνει και βάζει κενό. Αν η λέξη γραφτεί ολόκληρη και δεν μπορεί να συνεχίσει σε άλλη γνωστή λέξη, το κενό μπαίνει μόνο του. Το πλήκτρο κενού μένει πάντα διαθέσιμο.</p>
+    </div>
+    <div>
+      <h4>Συντομεύσεις στον υπολογιστή</h4>
+      <p>Γράμματα από το πληκτρολόγιο, <kbd>Space</kbd> για κενό, <kbd>Backspace</kbd> για σβήσιμο, <kbd>Enter</kbd> για αποθήκευση, <kbd>←</kbd> <kbd>→</kbd> για αλλαγή στένσιλ.</p>
+    </div>
+  </div>
+</aside>
+
+<div class="break" id="break" hidden>
+  <div class="breath">Διάλειμμα</div>
+  <div class="timer" id="break-timer">0:00</div>
+  <button type="button" class="act" id="break-exit" style="position: relative">Κράτα πατημένο για επιστροφή<span class="hold-ring" hidden></span></button>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  /* ---------- storage ---------- */
+  const LS = {
+    get(k, d) { try { const v = localStorage.getItem('gg:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('gg:' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+    del(k) { try { localStorage.removeItem('gg:' + k); } catch (e) {} }
+  };
+  const PROFILE_KEYS = ['settings', 'draft', 'log', 'learn', 'custom', 'phrases', 'events', 'sessions', 'run'];
+  let pid = null;
+  const pk = k => 'p:' + pid + ':' + k;
+  const PG = (k, d) => LS.get(pk(k), d);
+  const PS = (k, v) => LS.set(pk(k), v);
+
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const chunk = (s, n) => { const a = [...s], out = []; for (let i = 0; i < a.length; i += n) out.push(a.slice(i, i + n).join('')); return out; };
+
+  /* ---------- the Greek alphabet and its boards ---------- */
+  const TTS = 'el-GR';
+  const AB = {
+    letters: 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ',
+    sets: {
+      small: chunk('ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ', 4),
+      std: chunk('ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ', 8),
+      large: chunk('ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ', 12)
+    },
+    cols: { small: 2, std: 3, large: 4 },
+    sizeLabel: { small: '4 γράμματα · 6 στένσιλ', std: '8 γράμματα · 3 στένσιλ', large: '12 γράμματα · 2 στένσιλ' },
+    board: ['ΑΒΓΔΕΖΗΘ', 'ΙΚΛΜΝΞΟΠ', 'ΡΣΤΥΦΧΨΩ'],
+    kbd: ['1234567890', 'ΕΡΤΥΘΙΟΠ', 'ΑΣΔΦΓΗΞΚΛ', 'ΖΧΨΩΒΝΜ'],
+    punct: [',', '.', ';'],
+    space: 'κενό',
+    sample: 'Γεια σου, είμαι η φωνή που θα διαβάζει τα γράμματα.'
+  };
+  const GREEK_NAMES = {
+    'Α': 'άλφα', 'Β': 'βήτα', 'Γ': 'γάμμα', 'Δ': 'δέλτα', 'Ε': 'έψιλον', 'Ζ': 'ζήτα', 'Η': 'ήτα', 'Θ': 'θήτα',
+    'Ι': 'γιώτα', 'Κ': 'κάπα', 'Λ': 'λάμδα', 'Μ': 'μι', 'Ν': 'νι', 'Ξ': 'ξι', 'Ο': 'όμικρον', 'Π': 'πι',
+    'Ρ': 'ρο', 'Σ': 'σίγμα', 'Τ': 'ταυ', 'Υ': 'ύψιλον', 'Φ': 'φι', 'Χ': 'χι', 'Ψ': 'ψι', 'Ω': 'ωμέγα'
+  };
+  const SYMBOL_NAMES = { '+': 'συν', '−': 'πλην', '×': 'επί', '÷': 'διά', '=': 'ίσον', ',': 'κόμμα', '.': 'τελεία' };
+  const NUM_ROWS = ['123+', '456−', '789×', ',0.÷'];
+  const LETTER_STAGES = new Set(['stencil', 'board', 'kbd', 'numbers']);
+  const STAGE_LABEL = {
+    stencil: 'Στένσιλ', board: 'Πίνακας', kbd: 'Πληκτρολόγιο', numbers: 'Αριθμοί', yesno: 'Ναι / Όχι',
+    feelings: 'Συναισθήματα', pain: 'Πόνος', choice: 'Επιλογές', phrases: 'Φράσεις'
+  };
+  const MORE_STAGES = ['numbers', 'yesno', 'feelings', 'pain', 'choice', 'phrases'];
+  const MORE_HINT = { numbers: '0–9 και πράξεις', yesno: 'δύο μεγάλες κάρτες', feelings: '12 συναισθήματα', pain: 'κλίμακα 0–10', choice: 'κάρτες για κουίζ', phrases: 'γρήγορες ανάγκες' };
+
+  // feeling words with a simple face: m mouth curve, b brows (+ worried, − cross), e eye openness, o open mouth
+  const FEELINGS = [
+    ['χαρά', { m: 1, b: 0, e: 1 }],
+    ['λύπη', { m: -.8, b: .8, e: .9 }],
+    ['θυμός', { m: -.5, b: -1, e: .8 }],
+    ['φόβος', { m: 0, b: 1, e: 1.4, o: 1 }],
+    ['άγχος', { m: -.3, b: .7, e: 1.1 }],
+    ['κούραση', { m: 0, b: 0, e: .3 }],
+    ['ηρεμία', { m: .5, b: 0, e: .35 }],
+    ['ενθουσιασμός', { m: 1.3, b: .6, e: 1.3 }],
+    ['βαρεμάρα', { m: 0, b: 0, e: .6 }],
+    ['έκπληξη', { m: 0, b: 1, e: 1.4, o: 1.3 }],
+    ['ντροπή', { m: .2, b: .4, e: .8, blush: 1 }],
+    ['περηφάνια', { m: .7, b: -.2, e: .7 }]
+  ];
+  const BODY = ['κεφάλι', 'μάτια', 'αυτιά', 'δόντια', 'λαιμός', 'στήθος', 'κοιλιά', 'πλάτη', 'χέρι', 'πόδι'];
+  const DEFAULT_PHRASES = ['Χρειάζομαι διάλειμμα', 'Θέλω νερό', 'Θέλω να πάω τουαλέτα', 'Δεν κατάλαβα', 'Μπορείς να το ξαναπείς;', 'Περίμενε λίγο', 'Θέλω να συνεχίσουμε', 'Ευχαριστώ'];
+  const KIND_LABEL = { text: 'Κείμενο', known: 'Γνωστή', choice: 'Επιλογής', semi: 'Ημι-ανοιχτή', open: 'Ανοιχτή' };
+  const GRADE_LABEL = { full: 'Σωστό', half: 'Μισό', none: 'Λάθος' };
+
+  const SAMPLE_LESSON = {
+    id: 'sample-bees', example: true, title: 'Οι μέλισσες', created: Date.now(),
+    steps: [
+      { kind: 'text', text: 'Οι μέλισσες ζουν σε μεγάλες ομάδες που λέγονται μελίσσια. Σε κάθε μελίσσι υπάρχει μία βασίλισσα, που γεννά τα αυγά. Οι εργάτριες μέλισσες μαζεύουν γύρη και νέκταρ από τα λουλούδια.' },
+      { kind: 'known', text: 'Πώς λέγεται η ομάδα όπου ζουν οι μέλισσες;', answer: 'ΜΕΛΙΣΣΙ' },
+      { kind: 'choice', text: 'Ποια μέλισσα γεννά τα αυγά;', choices: ['ΒΑΣΙΛΙΣΣΑ', 'ΕΡΓΑΤΡΙΑ', 'ΚΗΦΗΝΑΣ'], answer: 'ΒΑΣΙΛΙΣΣΑ' },
+      { kind: 'text', text: 'Από το νέκταρ οι μέλισσες φτιάχνουν μέλι. Καθώς πετούν από λουλούδι σε λουλούδι, μεταφέρουν γύρη και βοηθούν τα φυτά να κάνουν καρπούς.' },
+      { kind: 'known', text: 'Τι φτιάχνουν οι μέλισσες από το νέκταρ;', answer: 'ΜΕΛΙ' },
+      { kind: 'semi', text: 'Ποιο λουλούδι πιστεύεις ότι αρέσει πιο πολύ στις μέλισσες;' },
+      { kind: 'open', text: 'Γιατί πιστεύεις ότι οι μέλισσες είναι σημαντικές για τη φύση;' }
+    ]
+  };
+
+  /* ---------- word prediction ----------
+     Base lists are ordered roughly by how often the word is used; earlier = ranked higher.
+     Words keep their accents so speech stresses them correctly; matching ignores accents. */
+  const WORDS = `και το να η ο τα της του την με θα δεν σε για που είναι από τον τι οι στο στην ένα μια αυτό τους μου σου μας σας
+      εγώ εσύ αυτός αυτή αυτοί αυτά εμείς εσείς ναι όχι θέλω μπορώ έχω είμαι ξέρω νομίζω πιστεύω νιώθω αγαπώ αρέσει
+      όταν αλλά πολύ πώς ότι αν ή επειδή γιατί όμως μετά πριν τώρα εδώ εκεί πάντα ποτέ κάτι τίποτα κάποιος όλα όλοι όλες
+      κάθε άλλο άλλη άλλος πιο λίγο λίγα πολλά πολλοί έτσι μόνο ακόμα ήδη μαζί χωρίς μέσα έξω πάνω κάτω δίπλα μπροστά πίσω
+      σήμερα αύριο χθες απόψε πρωί βράδυ μεσημέρι νύχτα ώρα μέρα εβδομάδα μήνας χρόνος χρόνια φορά στις στα στους στη στον
+      ως προς μέχρι κατά ενώ λοιπόν ίσως σίγουρα μάλλον βέβαια ποιος ποια ποιο πού πότε πόσο πόσα
+      είσαι είμαστε ήταν ήμουν έχεις έχει έχουμε είχα θέλεις θέλει θέλουμε ήθελα μπορείς μπορεί ξέρεις ξέρει σκέφτομαι
+      αισθάνομαι αγαπάω αρέσουν λέω λες λέει είπα πω κάνω κάνεις κάνει έκανα κάνουμε πάω πας πάει πήγα πάμε έρχομαι ήρθα έλα
+      βλέπω βλέπεις είδα δω ακούω άκουσα μιλάω μίλησα γράφω έγραψα διαβάζω διάβασα τρώω έφαγα φάω πίνω ήπια πιω παίζω έπαιξα
+      κοιμάμαι ξύπνησα ξυπνάω περιμένω καταλαβαίνω κατάλαβα θυμάμαι ξεχνάω ξέχασα μαθαίνω έμαθα βοηθάω βοήθεια χρειάζομαι
+      χρειάζεται ζητάω δίνω δώσε φέρε πάρε παίρνω πήρα αφήνω σταμάτα σταματάω συνεχίζω τελειώνω τελείωσα αρχίζω ξεκινάω
+      προσπαθώ προσπάθησα ελπίζω φοβάμαι ανησυχώ χαίρομαι λυπάμαι πονάω πονάει κουράστηκα πεινάω διψάω ζεσταίνομαι κρυώνω
+      νυστάζω βαριέμαι γελάω κλαίω χορεύω τραγουδάω ζωγραφίζω τρέχω περπατάω κολυμπάω ταξιδεύω αγοράζω ψάχνω βρίσκω βρήκα
+      χάνω έχασα ανοίγω κλείνω μένω ζω δουλεύω εξηγώ ρωτάω απαντάω ευχαριστώ παρακαλώ συγγνώμη γεια χαίρετε καλημέρα
+      καληνύχτα καλησπέρα αντίο μπράβο καλά καλός καλή καλό κακός κακή κακό ωραίος ωραία ωραίο μεγάλος μεγάλη μεγάλο
+      μικρός μικρή μικρό νέος νέα νέο παλιός παλιό χαρούμενος χαρούμενη λυπημένος λυπημένη θυμωμένος θυμωμένη αγχωμένος
+      αγχωμένη ήρεμος ήρεμη ενθουσιασμένος ενθουσιασμένη περήφανος περήφανη κουρασμένος κουρασμένη δύσκολο εύκολο
+      ενδιαφέρον αστείο σημαντικό αγαπημένο αγαπημένη αγαπημένος ζεστό κρύο γρήγορα αργά δυνατά σιγά ήσυχα σωστό λάθος
+      αληθινό ίδιο διαφορετικό έτοιμος έτοιμη άρρωστος άρρωστη καλύτερα χειρότερα τέλειο φοβερό υπέροχο όμορφο όμορφη
+      ψηλός κοντός άσπρο μαύρο κόκκινο μπλε πράσινο κίτρινο πορτοκαλί μωβ ροζ γκρι καφέ
+      μαμά μπαμπάς μπαμπά γιαγιά παππούς αδερφός αδερφή αδέρφια οικογένεια φίλος φίλη φίλοι φίλους παιδί παιδιά δάσκαλος
+      δασκάλα καθηγητής καθηγήτρια θεραπευτής θεραπεύτρια γιατρός άνθρωπος άνθρωποι κόσμος σπίτι σχολείο τάξη μάθημα
+      μαθήματα βιβλίο βιβλία τετράδιο μολύβι πίνακας γράμματα λέξη λέξεις πρόταση ερώτηση απάντηση ιστορία γεωγραφία
+      μαθηματικά φυσική χημεία βιολογία μουσική τέχνη γλώσσα ελληνικά αγγλικά επιστήμη διάστημα πλανήτης πλανήτες ήλιος
+      φεγγάρι αστέρια γη ουρανός θάλασσα βουνό δάσος ποτάμι νερό φωτιά αέρας βροχή χιόνι καιρός ζέστη καλοκαίρι χειμώνας
+      άνοιξη φθινόπωρο Δευτέρα Τρίτη Τετάρτη Πέμπτη Παρασκευή Σάββατο Κυριακή φαγητό πρωινό μεσημεριανό βραδινό ψωμί γάλα
+      τυρί αυγό φρούτα μήλο μπανάνα πορτοκάλι σοκολάτα παγωτό γλυκό πίτσα μακαρόνια κοτόπουλο ψάρι σαλάτα χυμός τραπέζι
+      καρέκλα κρεβάτι δωμάτιο κουζίνα μπάνιο τουαλέτα πόρτα παράθυρο αυτοκίνητο λεωφορείο ποδήλατο τρένο αεροπλάνο πάρκο
+      παιδική χαρά παραλία πισίνα βόλτα εκδρομή διακοπές γιορτή γενέθλια δώρο Χριστούγεννα Πάσχα παιχνίδι παιχνίδια μπάλα
+      τηλεόραση ταινία τραγούδι τραγούδια υπολογιστής τάμπλετ τηλέφωνο κινητό ζώο ζώα σκύλος σκυλάκι γάτα γατάκι άλογο
+      πουλί πουλιά ψάρια λιοντάρι ελέφαντας δεινόσαυρος μέλισσα πεταλούδα κεφάλι μάτια αυτιά μύτη στόμα δόντια χέρι χέρια
+      πόδι πόδια κοιλιά πλάτη καρδιά σώμα πόνος φάρμακο ύπνος όνειρο χρώμα χρώματα αριθμός αριθμοί δύο τρία τέσσερα πέντε
+      έξι επτά οκτώ εννιά δέκα είκοσι εκατό χίλια ζωή αγάπη λύπη φόβος θυμός άγχος ελπίδα ελευθερία φωνή σκέψη σκέψεις
+      ιδέα όνομα λόγος τρόπος πράγμα πράγματα κομμάτι αρχή τέλος μέρος δουλειά πρόβλημα λύση ησυχία θόρυβος φως σκοτάδι
+      μέλι μελίσσι βασίλισσα εργάτρια λουλούδι λουλούδια φύση φυτά δέντρο δέντρα κούραση ηρεμία ενθουσιασμός βαρεμάρα
+      έκπληξη ντροπή περηφάνια λαιμός στήθος διάλειμμα`;
+  const keyOf = w => w.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^\p{L}]/gu, '');
+  const plainUpper = w => w.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().normalize('NFC');
+  const isGreekKey = k => /[Α-Ω]/.test(k);
+  const DICT = (() => {
+    const map = new Map();
+    let i = 0;
+    for (const w of WORDS.split(/\s+/)) {
+      const k = keyOf(w);
+      if (!k || map.has(k)) continue;
+      map.set(k, { w: w.normalize('NFC'), rank: i++ });
+    }
+    return { map, size: i };
+  })();
+
+  /* ---------- per-student state ---------- */
+  const DEFAULTS = {
+    predict: true, predMin: 2, autoSpace: true,
+    stage: 'stencil', stencil: 0, setSize: 'std', support: 'stand', skin: 'classic',
+    speakLetter: true, speakWord: true, voiceEl: '', rate: 0.9, pitch: 1,
+    size: 100, hold: 0, lock: 300, spaceOnBoard: true,
+    lower: false, hc: false, calm: false, choices: [], period: 7
+  };
+  let S, text, log, learned, customText, customMap, phrases, events, sessions, run;
+  let charEv = [];        // the letter event behind each character of `text` (null for spaces, predictions…)
+  let curSession = null;
+  let lessons = LS.get('lessons', null);
+  if (!Array.isArray(lessons)) { lessons = [SAMPLE_LESSON]; LS.set('lessons', lessons); }
+  let profiles = LS.get('profiles', null);
+
+  // one-time move of the single-student data from earlier versions into the first profile
+  if (!Array.isArray(profiles) || !profiles.length) {
+    profiles = [{ id: 'p1', name: 'Μαθητής' }];
+    LS.set('profiles', profiles);
+    pid = 'p1';
+    for (const k of ['settings', 'draft', 'log', 'learn', 'custom']) {
+      const v = LS.get(k, undefined);
+      if (v !== undefined) { PS(k, v); LS.del(k); }
+    }
+  }
+
+  function parseCustom() {
+    customMap = new Map();
+    for (const w of customText.split(/[\s,;]+/)) {
+      const k = keyOf(w);
+      if (k) customMap.set(k, w.normalize('NFC'));
+    }
+  }
+
+  function loadProfile(id) {
+    pid = profiles.some(p => p.id === id) ? id : profiles[0].id;
+    LS.set('current', pid);
+    S = Object.assign({}, DEFAULTS, PG('settings', {}));
+    text = PG('draft', '');
+    charEv = [...text].map(() => null);
+    log = PG('log', null);
+    if (!Array.isArray(log)) {
+      const now = Date.now();
+      log = pid === 'p1' ? [
+        { id: 'ex2', t: now - 6 * 60000, q: 'Τι σου άρεσε σήμερα στο μάθημα;', qt: 'open', a: 'ΟΙ ΠΛΑΝΗΤΕΣ ΚΑΙ Ο ΚΡΟΝΟΣ', example: true, grade: 'full', sup: 'stand' },
+        { id: 'ex1', t: now - 14 * 60000, q: 'Ποιο έντομο φτιάχνει μέλι;', qt: 'known', exp: 'ΜΕΛΙΣΣΑ', a: 'ΜΕΛΙΣΣΑ', example: true, grade: 'full', sup: 'stand' }
+      ] : [];
+      PS('log', log);
+    }
+    // earlier versions kept learned words and phrases per language: keep only the Greek ones
+    learned = PG('learn', {});
+    if (learned.el && typeof learned.el === 'object' && !learned.el.w) learned = learned.el;
+    customText = PG('custom', '');
+    parseCustom();
+    phrases = PG('phrases', null);
+    if (!Array.isArray(phrases)) phrases = (phrases && phrases.el) || DEFAULT_PHRASES.slice();
+    events = PG('events', []);
+    sessions = PG('sessions', []);
+    run = PG('run', null);
+    if (run && !lessons.some(l => l.id === run.lessonId)) run = null;
+    curSession = null;
+  }
+  const save = () => PS('settings', S);
+  let saveTimer = null;
+  function saveActivity() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      if (events.length > 30000) events.splice(0, events.length - 30000);
+      PS('events', events);
+      PS('sessions', sessions);
+    }, 600);
+  }
+  window.addEventListener('pagehide', () => { PS('events', events); PS('sessions', sessions); });
+
+  function formOf(k) {
+    if (customMap.has(k)) return customMap.get(k);
+    const d = DICT.map.get(k);
+    if (d) return d.w;
+    const l = learned[k];
+    return l ? l.w : null;
+  }
+  // every known word starting with the prefix, best first
+  function matches(prefix) {
+    const d = DICT, out = new Map();
+    for (const [k, v] of d.map) if (k.startsWith(prefix)) out.set(k, { k, w: v.w, score: d.size - v.rank });
+    for (const [k, v] of Object.entries(learned)) {
+      if (!k.startsWith(prefix)) continue;
+      const e = out.get(k);
+      if (e) e.score += v.n * 400;
+      else if (v.n >= 2) out.set(k, { k, w: v.w, score: v.n * 400 });
+    }
+    for (const [k, w] of customMap) {
+      if (!k.startsWith(prefix) || !isGreekKey(k)) continue;
+      const e = out.get(k) || { k, score: 0 };
+      e.w = w; e.score += 100000;
+      out.set(k, e);
+    }
+    return [...out.values()].sort((a, b) => b.score - a.score || a.k.length - b.k.length);
+  }
+  function learnWord(k, form) {
+    if (!k || k.length < 2 || !isGreekKey(k)) return;
+    const e = learned[k] || (learned[k] = { w: form || formOf(k) || k, n: 0 });
+    e.n++;
+    PS('learn', learned);
+  }
+  // the word being spelled right now; '' at a word start, null if it holds digits or punctuation
+  function currentWord() {
+    const w = text.slice(text.lastIndexOf(' ') + 1);
+    return /^\p{L}*$/u.test(w) ? w : null;
+  }
+
+  const stage = $('stage'), sheet = $('sheet'), tabs = $('tabs'), output = $('output'), area = $('board-area');
+
+  /* ---------- letter layouts ---------- */
+  const groups = () => AB.sets[S.setSize] || AB.sets.std;
+  function layout() {
+    const A = AB;
+    const letters = s => [...s].map(ch => ({ ch }));
+    if (S.stage === 'stencil') {
+      const g = groups();
+      if (S.stencil >= g.length) S.stencil = 0;
+      // the space sits in the same place on every stencil: down the right edge when the screen
+      // is limited by height (landscape), along the bottom when it is limited by width (a phone held upright)
+      const cols = AB.cols[S.setSize] || 3;
+      const rows = chunk(g[S.stencil], cols).map(letters);
+      let side = null;
+      if (S.spaceOnBoard) {
+        if (spaceOnSide(cols, rows.length)) side = { act: 'space', w: .8, label: A.space };
+        else rows.push([{ act: 'space', w: cols, label: A.space }]);
+      }
+      return { kind: 'stencil', gap: .16, rows, side, max: S.setSize === 'small' ? 300 : 260 };
+    }
+    if (S.stage === 'board') {
+      const rows = A.board.map(letters);
+      if (S.spaceOnBoard) rows.push([{ act: 'space', w: 4, label: A.space }]);
+      return { kind: 'board', gap: .16, rows, max: 160 };
+    }
+    if (S.stage === 'numbers') {
+      const rows = NUM_ROWS.map(r => [...r].map(ch => ({ ch, raw: true, op: '+−×÷'.includes(ch) })));
+      rows.push([{ ch: '=', raw: true, op: true }, { act: 'space', w: 3, label: A.space }]);
+      return { kind: 'board', gap: .16, rows, max: 150 };
+    }
+    const rows = A.kbd.map(letters);
+    rows[1].push({ act: 'back', w: 1.5, html: ICON_BACK, label: 'σβήσιμο', fn: true });
+    rows[3].push(...A.punct.map(ch => ({ ch, fn: true })));
+    rows.push([{ act: 'space', w: 6, label: A.space }]);
+    return { kind: 'kbd', gap: .12, rows, max: 110 };
+  }
+  // which stencil shape gives bigger letters in the space the stage has right now
+  function spaceOnSide(cols, rows) {
+    const W = stage.clientWidth, H = stage.clientHeight;
+    if (!W || !H) return true;
+    const g = .16, pad = .56, top = .3;
+    const across = cols + g * (cols - 1) + pad, down = rows + g * (rows - 1) + pad + top;
+    const kSide = Math.min(W / (across + g + .8), H / down);
+    const kBottom = Math.min(W / across, H / (down + 1 + g));
+    return kSide >= kBottom;
+  }
+  const ICON_BACK = '<svg class="ico" viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z"/><path d="M12 9l6 6M18 9l-6 6"/></svg>';
+  const ICON_HINT = '<svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h6"/></svg>';
+
+  function makeKey(it, side) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'key' + (side ? ' side wide' : (it.w > 1 && !it.html ? ' wide' : '')) + (it.fn ? ' fn' : '') + (it.op ? ' op' : '');
+    if (it.w) b.style.setProperty('--w', it.w);
+    if (it.act) { b.dataset.act = it.act; b.setAttribute('aria-label', it.label); }
+    else b.dataset.ch = it.ch;
+    if (it.raw) b.dataset.raw = '1';
+    if (it.html) b.innerHTML = it.html;
+    else b.textContent = it.ch || plainUpper(it.label);
+    return b;
+  }
+
+  /* ---------- card boards ---------- */
+  function face(f) {
+    const ey = Math.max(.5, 2.4 * f.e);
+    const bi = 12 - f.b * 1.6, bo = 12 + f.b * .4;
+    const eyes = f.e < .5
+      ? '<path d="M12.5 17.5q2.5 1.6 5 0M22.5 17.5q2.5 1.6 5 0"/>'
+      : `<ellipse class="dot" cx="15" cy="17.5" rx="1.8" ry="${ey}"/><ellipse class="dot" cx="25" cy="17.5" rx="1.8" ry="${ey}"/>`;
+    const brows = Math.abs(f.b) > .1 ? `<path d="M10.5 ${bo}L16.5 ${bi}M23.5 ${bi}L29.5 ${bo}"/>` : '';
+    const mouth = f.o
+      ? `<ellipse cx="20" cy="27.5" rx="${2.4 * f.o}" ry="${3 * f.o}"/>`
+      : `<path d="M13.5 26.5Q20 ${26.5 + f.m * 6} 26.5 26.5"/>`;
+    const blush = f.blush ? '<circle class="blush" cx="11" cy="24" r="2.6"/><circle class="blush" cx="29" cy="24" r="2.6"/>' : '';
+    return `<svg class="face" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17"/>${blush}${eyes}${brows}${mouth}</svg>`;
+  }
+  function cardKey(word, opts = {}) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'key card' + (opts.cls ? ' ' + opts.cls : '');
+    b.dataset.word = plainUpper(word);
+    b.dataset.say = opts.say || word;
+    b.innerHTML = (opts.icon || '') + `<span>${esc(opts.label || plainUpper(word))}</span>`;
+    return b;
+  }
+  function activeChoices() {
+    const st = runStep();
+    if (st && st.kind === 'choice' && st.choices && st.choices.length) return st.choices;
+    return S.choices;
+  }
+  function renderCards() {
+    sheet.className = 'sheet cards ' + S.stage;
+    sheet.innerHTML = '';
+    const grid = document.createElement('div');
+    grid.className = 'card-grid';
+    let items = [];
+    if (S.stage === 'yesno') {
+      items = [cardKey('Ναι', { cls: 'yes' }), cardKey('Όχι', { cls: 'no' })];
+    } else if (S.stage === 'feelings') {
+      items = FEELINGS.map(([w, f]) => cardKey(w, { icon: face(f) }));
+    } else if (S.stage === 'phrases') {
+      items = phrases.map(p => cardKey(p));
+      if (!items.length) {
+        sheet.innerHTML = `<div class="empty-board"><b>Δεν υπάρχουν φράσεις</b>Πρόσθεσε φράσεις από το μενού Φράσεις στον πίνακα συνεργάτη.</div>`;
+        return;
+      }
+    } else if (S.stage === 'choice') {
+      const list = activeChoices();
+      const fromLesson = runStep() && runStep().kind === 'choice';
+      if (!fromLesson) {
+        const ed = document.createElement('div');
+        ed.className = 'choice-edit lockable';
+        ed.innerHTML = [0, 1, 2, 3].map(i => `<input id="choice-${i}" type="text" autocomplete="off" placeholder="Επιλογή ${i + 1}${i > 1 ? ' (προαιρετικά)' : ''}" value="${esc(S.choices[i] || '')}">`).join('') +
+          '<button type="button" class="act primary" id="choice-apply">Εμφάνιση</button>';
+        sheet.appendChild(ed);
+        ed.querySelector('#choice-apply').addEventListener('click', () => {
+          S.choices = [0, 1, 2, 3].map(i => $('choice-' + i).value.trim()).filter(Boolean);
+          save(); render();
+        });
+      }
+      items = list.map(c => cardKey(c));
+      if (!items.length) {
+        const em = document.createElement('div');
+        em.className = 'empty-board';
+        em.innerHTML = '<b>Γράψε 2 έως 4 επιλογές</b>Οι επιλογές εμφανίζονται ως μεγάλες κάρτες. Ο μαθητής δείχνει μία και η απάντηση γράφεται στο κείμενο.';
+        sheet.appendChild(em);
+        return;
+      }
+    } else if (S.stage === 'pain') {
+      const cap = document.createElement('div');
+      cap.className = 'card-caption';
+      cap.textContent = 'Πόσο πονάς; 0 = καθόλου, 10 = πάρα πολύ';
+      const scale = document.createElement('div');
+      scale.className = 'pain-scale';
+      for (let i = 0; i <= 10; i++) {
+        const b = cardKey(`ΠΟΝΟΣ ${i}/10`, { label: String(i), say: `πόνος ${i} στα 10` });
+        b.style.setProperty('--pc', `hsl(${130 - i * 12.5} 55% ${68 - i * 1.2}%)`);
+        scale.appendChild(b);
+      }
+      const cap2 = document.createElement('div');
+      cap2.className = 'card-caption';
+      cap2.textContent = 'Πού πονάς;';
+      sheet.append(cap, scale, cap2);
+      items = BODY.map(w => cardKey(w));
+    }
+    items.forEach(b => grid.appendChild(b));
+    sheet.appendChild(grid);
+  }
+  function fitCards() {
+    const grid = sheet.querySelector('.card-grid');
+    if (!grid) return;
+    const n = grid.children.length;
+    const W = grid.clientWidth || stage.clientWidth, H = grid.clientHeight || stage.clientHeight;
+    const wide = W / Math.max(1, H);
+    // columns are capped so a card never gets narrower than a long word needs
+    const fitCols = (want, minW) => Math.max(1, Math.min(want, Math.floor((W + 12) / (minW + 12))));
+    let cols;
+    if (S.stage === 'yesno') cols = wide > .8 ? 2 : 1;
+    else if (S.stage === 'feelings') cols = fitCols(wide > 2.2 ? 6 : wide > 1.1 ? 4 : 3, 170);
+    else if (S.stage === 'pain') cols = fitCols(wide > 2.6 ? 10 : 5, 130);
+    else if (S.stage === 'phrases') cols = wide > 1.4 ? 4 : 2;
+    else cols = n <= 2 ? (wide > .8 ? n : 1) : (wide > 1.3 ? n : 2);
+    cols = Math.max(1, Math.min(cols, n));
+    grid.style.setProperty('--cols', cols);
+    const rowsN = Math.ceil(n / cols);
+    const cellW = (W - 12 * (cols - 1)) / cols, cellH = (H - 12 * (rowsN - 1)) / rowsN;
+    let longest = 1;
+    for (const c of grid.children) longest = Math.max(longest, ...(c.textContent || '').split(' ').map(s => s.length));
+    const fs = Math.max(12, Math.min((cellW - 20) / (longest * .8), cellH * (S.stage === 'feelings' ? .2 : .32), 72));
+    sheet.style.setProperty('--card-fs', Math.floor(fs) + 'px');
+    sheet.style.setProperty('--face', Math.floor(Math.min(cellW * .5, cellH * .5, 140)) + 'px');
+  }
+
+  let current = null;
+  function render() {
+    closeMenu();
+    if (!LETTER_STAGES.has(S.stage)) {
+      current = null;
+      tabs.hidden = true;
+      area.classList.remove('with-tabs');
+      renderCards();
+    } else {
+      sheet.style.removeProperty('--card-fs');
+      current = layout();
+      sheet.className = 'sheet ' + current.kind + (current.kind === 'stencil' ? ' st' + (S.stencil % 7 + 1) : '');
+      sheet.innerHTML = '';
+      const g = groups();
+      if (current.kind === 'stencil') {
+        const flat = g[S.stencil];
+        const lab = document.createElement('div');
+        lab.className = 'sheet-label';
+        lab.innerHTML = `<span>Στένσιλ ${S.stencil + 1} / ${g.length}</span><span>${flat[0]}–${flat[flat.length - 1]}</span>`;
+        sheet.appendChild(lab);
+      }
+      const body = document.createElement('div');
+      body.className = 'sheet-body';
+      const rows = document.createElement('div');
+      rows.className = 'rows';
+      for (const row of current.rows) {
+        const r = document.createElement('div');
+        r.className = 'row';
+        for (const it of row) r.appendChild(makeKey(it));
+        rows.appendChild(r);
+      }
+      body.appendChild(rows);
+      if (current.side) body.appendChild(makeKey(current.side, true));
+      sheet.appendChild(body);
+
+      const withTabs = current.kind === 'stencil';
+      tabs.hidden = !withTabs;
+      area.classList.toggle('with-tabs', withTabs);
+      tabs.innerHTML = '';
+      if (withTabs) {
+        g.forEach((st, i) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tab';
+          b.id = 'tab-' + i;
+          b.setAttribute('aria-pressed', String(i === S.stencil));
+          b.innerHTML = `<span class="chip" style="--c: var(--st${i % 7 + 1})"></span><span><b>${st[0]}–${st[st.length - 1]}</b><small>Στένσιλ ${i + 1}</small></span>`;
+          b.addEventListener('click', () => setStencil(i));
+          tabs.appendChild(b);
+        });
+      }
+    }
+    document.querySelectorAll('[data-stage]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === S.stage)));
+    const more = MORE_STAGES.includes(S.stage);
+    $('more-btn').setAttribute('aria-pressed', String(more));
+    $('more-label').textContent = more ? STAGE_LABEL[S.stage] : 'Άλλοι πίνακες';
+    renderPreds();
+    fit();
+  }
+
+  function fit() {
+    if (!current) { fitCards(); return; }
+    // turning the device can make the other stencil shape the better one
+    if (current.kind === 'stencil' && S.spaceOnBoard) {
+      const g = groups()[S.stencil] || '';
+      const cols = AB.cols[S.setSize] || 3;
+      if (spaceOnSide(cols, Math.ceil(g.length / cols)) !== !!current.side) { render(); return; }
+    }
+    // mirror the tab column on the right so the sheet sits in the middle of the screen
+    area.style.setProperty('--tabs-w', (tabs.hidden ? 0 : tabs.offsetWidth) + 'px');
+    const W = stage.clientWidth, H = stage.clientHeight;
+    if (!W || !H) return;
+    const g = current.gap, pad = .28 * 2;
+    const extraTop = current.kind === 'stencil' ? .3 : 0;
+    let cols = 0;
+    for (const row of current.rows) {
+      const units = row.reduce((s, it) => s + (it.w || 1), 0) + g * (row.length - 1);
+      cols = Math.max(cols, units);
+    }
+    if (current.side) cols += g + current.side.w;
+    const n = current.rows.length;
+    const rowsU = n + g * (n - 1);
+    let k = Math.min(W / (cols + pad), H / (rowsU + pad + extraTop));
+    k = Math.min(k, current.max) * (S.size / 100);
+    k = Math.max(18, Math.floor(k));
+    document.documentElement.style.setProperty('--key', k + 'px');
+    document.documentElement.style.setProperty('--gap', Math.round(k * g) + 'px');
+  }
+  new ResizeObserver(() => fit()).observe(stage);
+
+  /* ---------- text model ---------- */
+  const greekLower = t => t.toLowerCase().replace(/σ(?=[^\p{L}]|$)/gu, 'ς');
+  const EXTRA_FORMS = new Map();
+  for (const [w] of FEELINGS) EXTRA_FORMS.set(keyOf(w), w);
+  // known words come back with their accents, the rest are plain lower case
+  const withForms = t => t.replace(/[\p{L}']+/gu, m => formOf(keyOf(m)) || EXTRA_FORMS.get(keyOf(m)) || greekLower(m));
+  const shown = t => S.lower ? withForms(t) : t;
+
+  function drawOutput(fresh) {
+    if (!text) {
+      output.innerHTML = '<span class="ph">Τα γράμματα που επιλέγει ο μαθητής εμφανίζονται εδώ</span>';
+      return;
+    }
+    const d = shown(text);
+    if (fresh && d.trim()) {
+      output.innerHTML = esc(d.slice(0, -1)) + '<span class="fresh">' + esc(d.slice(-1)) + '</span><span class="caret"></span>';
+    } else {
+      output.innerHTML = esc(d) + '<span class="caret"></span>';
+    }
+    output.scrollTop = output.scrollHeight;
+  }
+  function pushText(str, ev = null) { for (const ch of str) { text += ch; charEv.push(ev); } }
+  function popText(n = 1) {
+    for (let i = 0; i < n && text; i++) {
+      const ev = charEv.pop();
+      text = text.slice(0, -1);
+      if (ev && !ev.del) { ev.del = true; if (curSession) curSession.del++; }
+    }
+  }
+  function commit(fresh) { LS.set(pk('draft'), text); drawOutput(fresh); renderPreds(); saveActivity(); }
+  function clearText() { text = ''; charEv = []; commit(); }
+
+  /* activity: a session is a stretch of use with no gap longer than 20 minutes */
+  function touchSession() {
+    const now = Date.now();
+    if (!curSession) {
+      const last = sessions[sessions.length - 1];
+      if (last && now - last.last < 20 * 60000) curSession = last;
+    }
+    if (!curSession || now - curSession.last > 20 * 60000) {
+      curSession = { id: uid(), start: now, last: now, letters: 0, del: 0, words: 0, entries: 0, activeMs: 0, stand: 0, held: 0 };
+      sessions.push(curSession);
+    } else {
+      curSession.activeMs += Math.min(now - curSession.last, 60000);
+      curSession.last = now;
+    }
+    return curSession;
+  }
+  function targetAnswer() {
+    const st = runStep();
+    return st && st.kind === 'known' && st.answer ? plainUpper(st.answer) : null;
+  }
+  function logLetter(ch, ok) {
+    const s = touchSession();
+    const ev = { t: Date.now(), c: ch, ok, sup: S.support, st: S.stage };
+    events.push(ev);
+    s.letters++;
+    s[S.support === 'held' ? 'held' : 'stand']++;
+    return ev;
+  }
+
+  function sayChar(ch) {
+    if (!S.speakLetter) return;
+    if (GREEK_NAMES[ch]) say(GREEK_NAMES[ch]);
+    else if (/[0-9]/.test(ch)) say(ch);
+    else if (SYMBOL_NAMES[ch]) say(SYMBOL_NAMES[ch]);
+  }
+  function addChar(ch, raw) {
+    const isLetter = /\p{L}/u.test(ch);
+    const tgt = targetAnswer();
+    const ok = tgt != null && isLetter ? tgt[text.length] === ch : null;
+    const ev = logLetter(ch, ok);
+    // punctuation sits right after the word, then a space follows it
+    if (!raw && !isLetter && !/[0-9]/.test(ch)) {
+      if (text.endsWith(' ')) popText(1);
+      pushText(ch, ev); pushText(' ');
+    } else pushText(ch, ev);
+    commit(true);
+    sayChar(ch);
+    // a word that is complete and cannot continue into a longer known word gets its space by itself
+    if (isLetter && S.predict && S.autoSpace && LETTER_STAGES.has(S.stage)) {
+      const w = currentWord();
+      if (w && w.length >= 3) {
+        const m = matches(w);
+        if (m.length === 1 && m[0].k === w) addSpace(true);
+      }
+    }
+  }
+  function addSpace(queued) {
+    if (!text || text.endsWith(' ')) return;
+    const word = text.split(' ').pop();
+    pushText(' ');
+    touchSession().words++;
+    commit();
+    learnWord(keyOf(word));
+    if (S.speakWord) say(spoken(word), queued === true);
+  }
+  function acceptPrediction(form, k) {
+    const w = currentWord();
+    if (w === null) return;
+    popTextKeep(w.length);
+    pushText(plainUpper(form) + ' ');
+    touchSession().words++;
+    commit();
+    learnWord(k, form);
+    if (S.speakWord) say(spoken(form));
+  }
+  // replacing a partial word with its prediction is not a deletion
+  function popTextKeep(n) { for (let i = 0; i < n; i++) { charEv.pop(); text = text.slice(0, -1); } }
+  function insertWord(word, sayText) {
+    if (text && !text.endsWith(' ')) pushText(' ');
+    pushText(word + ' ');
+    touchSession().words++;
+    commit();
+    say(sayText || spoken(word));
+  }
+  function backspace() { if (text) { popText(1); commit(); } }
+  const spoken = t => withForms(t).replace(/;/g, '?').replace(/(\d+)\/10/g, '$1 στα 10');
+
+  const predbar = $('predbar');
+  function renderPreds() {
+    const on = S.predict && LETTER_STAGES.has(S.stage) && S.stage !== 'numbers';
+    predbar.hidden = !on;
+    if (!on) return;
+    const w = currentWord();
+    const hint = msg => { predbar.innerHTML = msg ? `<span class="pred-hint">${ICON_HINT}${esc(msg)}</span>` : ''; };
+    if (w === null) return hint('');
+    if (w.length < S.predMin) {
+      return hint(`Προτάσεις λέξεων μετά από ${S.predMin} ${S.predMin === 1 ? 'γράμμα' : 'γράμματα'}`);
+    }
+    const list = matches(w).slice(0, 4);
+    if (!list.length) return hint(`Καμία γνωστή λέξη δεν αρχίζει από «${w}». Συνέχισε γράμμα γράμμα.`);
+    predbar.innerHTML = '';
+    for (const c of list) {
+      const disp = S.lower ? c.w : plainUpper(c.w);
+      let i = 0, n = 0;
+      while (i < disp.length && n < w.length) { if (/\p{L}/u.test(disp[i])) n++; i++; }
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'pred';
+      b.dataset.word = c.w;
+      b.dataset.key = c.k;
+      b.innerHTML = `<span class="pre">${esc(disp.slice(0, i))}</span>${esc(disp.slice(i))}`;
+      predbar.appendChild(b);
+    }
+  }
+
+  /* ---------- speech ----------
+     Voices come from the device and browser. Network "natural" voices (Edge on Windows) and
+     enhanced/premium voices (Apple) sound far better than the basic ones, so they rank first. */
+  let voices = [];
+  const quality = v => {
+    const n = v.name;
+    if (/natural|neural/i.test(n)) return 4;
+    if (/online|premium|enhanced|βελτιωμένη|siri/i.test(n)) return 3;
+    if (/google/i.test(n)) return 2;
+    return 1;
+  };
+  const greekVoices = () => voices
+    .filter(v => v.lang.replace('_', '-').toLowerCase().startsWith('el'))
+    .sort((a, b) => quality(b) - quality(a) || a.name.localeCompare(b.name));
+  const badge = v => { const q = quality(v); return q === 4 ? ' — φυσική' : q === 3 ? ' — βελτιωμένη' : ''; };
+  function fillVoiceSelect() {
+    const sel = $('set-voiceEl');
+    const list = greekVoices();
+    const best = list[0];
+    sel.innerHTML = `<option value="">Αυτόματα${best ? ': ' + esc(best.name) : ''}</option>` +
+      list.map(v => `<option value="${esc(v.name)}">${esc(v.name)}${badge(v)}${v.localService === false ? ' (online)' : ''}</option>`).join('');
+    sel.value = list.some(v => v.name === S.voiceEl) ? S.voiceEl : '';
+    $('count-el').textContent = list.length
+      ? `${list.length} ελληνικ${list.length === 1 ? 'ή διαθέσιμη' : 'ές διαθέσιμες'} σε αυτή τη συσκευή`
+      : 'καμία ελληνική σε αυτή τη συσκευή';
+    return list;
+  }
+  function loadVoices() {
+    if (!('speechSynthesis' in window)) return;
+    voices = speechSynthesis.getVoices();
+    const el = fillVoiceSelect();
+    const warn = $('voice-warn');
+    if (voices.length && !el.length) {
+      warn.hidden = false;
+      warn.textContent = 'Δεν βρέθηκε ελληνική φωνή σε αυτή τη συσκευή, οπότε τα ελληνικά θα ακούγονται με ξένη προφορά. Δες παρακάτω πώς να προσθέσεις μία.';
+    } else if (el.length && quality(el[0]) < 3) {
+      warn.hidden = false;
+      warn.textContent = 'Υπάρχει μόνο βασική ελληνική φωνή. Για πιο καθαρή ανάγνωση δες τις οδηγίες παρακάτω.';
+    } else warn.hidden = true;
+  }
+  function pickVoice() {
+    const list = greekVoices();
+    return list.find(v => v.name === S.voiceEl) || list[0] || null;
+  }
+  function say(t, queued) {
+    if (!('speechSynthesis' in window) || !t || !t.trim()) return;
+    if (!queued) speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = TTS;
+    const v = pickVoice();
+    if (v) { u.voice = v; u.lang = v.lang; }
+    u.rate = S.rate;
+    u.pitch = S.pitch;
+    speechSynthesis.speak(u);
+  }
+
+  /* ---------- touch: select on lift, over the same key ---------- */
+  let active = null, lastSel = 0;
+  const target = e => e.target.closest && e.target.closest('#sheet .key, #predbar .pred');
+  document.addEventListener('pointerdown', e => {
+    const k = target(e);
+    if (!k || active) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    active = { id: e.pointerId, k, t: performance.now() };
+    k.classList.add('pressing');
+    if (S.hold > 0) active.timer = setTimeout(() => k.classList.add('armed'), S.hold);
+  });
+  function endPress(e, cancel) {
+    if (!active || e.pointerId !== active.id) return;
+    const { k, t, timer } = active;
+    clearTimeout(timer);
+    k.classList.remove('pressing', 'armed');
+    active = null;
+    if (cancel) return;
+    const under = document.elementFromPoint(e.clientX, e.clientY);
+    if (!under || under.closest('.key, .pred') !== k) return;
+    if (performance.now() - t < S.hold) return;
+    activate(k);
+  }
+  window.addEventListener('pointerup', e => endPress(e, false));
+  window.addEventListener('pointercancel', e => endPress(e, true));
+  document.addEventListener('contextmenu', e => { if (target(e)) e.preventDefault(); });
+  // keyboard activation of a focused key (Tab + Enter) for switch and keyboard users
+  document.addEventListener('click', e => {
+    const k = target(e);
+    if (k && e.detail === 0) activate(k);
+  });
+
+  function activate(k) {
+    const now = performance.now();
+    if (now - lastSel < S.lock) return;
+    lastSel = now;
+    flash(k);
+    if (k.classList.contains('pred')) acceptPrediction(k.dataset.word, k.dataset.key);
+    else if (k.dataset.word) insertWord(k.dataset.word, k.dataset.say);
+    else if (k.dataset.act === 'space') addSpace();
+    else if (k.dataset.act === 'back') backspace();
+    else addChar(k.dataset.ch, k.dataset.raw === '1');
+  }
+  function flash(k) {
+    k.classList.remove('hit');
+    void k.offsetWidth;
+    k.classList.add('hit');
+    if (navigator.vibrate) try { navigator.vibrate(12); } catch (e) {}
+  }
+
+  /* ---------- stage controls ---------- */
+  function setStencil(i) {
+    const n = groups().length;
+    S.stencil = (i + n) % n; save(); render();
+  }
+  function setStage(st) { S.stage = st; save(); render(); }
+  document.querySelectorAll('[data-stage]').forEach(b => b.addEventListener('click', () => setStage(b.dataset.stage)));
+
+  const moreMenu = $('more-menu');
+  function closeMenu() { moreMenu.hidden = true; $('more-btn').setAttribute('aria-expanded', 'false'); }
+  $('more-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    if (!moreMenu.hidden) return closeMenu();
+    moreMenu.innerHTML = MORE_STAGES.map(st => `<button type="button" data-goto="${st}" aria-pressed="${st === S.stage}">${STAGE_LABEL[st]}<small>${MORE_HINT[st]}</small></button>`).join('');
+    moreMenu.hidden = false;
+    $('more-btn').setAttribute('aria-expanded', 'true');
+  });
+  moreMenu.addEventListener('click', e => {
+    const b = e.target.closest('[data-goto]');
+    if (b) setStage(b.dataset.goto);
+  });
+  document.addEventListener('click', e => { if (!moreMenu.hidden && !e.target.closest('.menu-wrap')) closeMenu(); });
+
+  document.querySelectorAll('[data-sup]').forEach(b => b.addEventListener('click', () => { S.support = b.dataset.sup; save(); syncSupport(); }));
+  function syncSupport() { document.querySelectorAll('[data-sup]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sup === S.support))); }
+
+  $('btn-space').addEventListener('click', () => addSpace());
+  $('btn-back').addEventListener('click', backspace);
+  $('btn-say').addEventListener('click', () => say(spoken(text)));
+  $('btn-save').addEventListener('click', saveEntry);
+
+  function armButton(btn, label, onConfirm) {
+    if (btn.dataset.armed) {
+      clearTimeout(+btn.dataset.armed);
+      delete btn.dataset.armed;
+      btn.innerHTML = btn.dataset.orig;
+      if (!btn.dataset.keepWarn) btn.classList.remove('warn');
+      onConfirm();
+      return;
+    }
+    btn.dataset.orig = btn.innerHTML;
+    btn.dataset.keepWarn = btn.classList.contains('warn') ? '1' : '';
+    btn.textContent = label;
+    btn.classList.add('warn');
+    btn.dataset.armed = setTimeout(() => {
+      delete btn.dataset.armed;
+      btn.innerHTML = btn.dataset.orig;
+      if (!btn.dataset.keepWarn) btn.classList.remove('warn');
+    }, 3000);
+  }
+  $('btn-clear').addEventListener('click', e => {
+    if (!text) return;
+    armButton(e.currentTarget, 'Πάτα ξανά', clearText);
+  });
+
+  /* ---------- saving answers ---------- */
+  const norm = s => plainUpper(String(s || '')).replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  function saveEntry() {
+    const st = runStep();
+    const a = text.trim();
+    if (!a) {
+      if (st && st.kind === 'text') { goStep(run.step + 1); return; }
+      toast('Δεν υπάρχει κείμενο για αποθήκευση. Γράψε πρώτα με τον πίνακα.');
+      return;
+    }
+    if (!text.endsWith(' ')) learnWord(keyOf(text.split(' ').pop()));
+    const entry = { id: uid(), t: Date.now(), q: $('question').value.trim(), a, sup: S.support, grade: null, note: '' };
+    if (st) {
+      const L = runLesson();
+      Object.assign(entry, { q: st.kind === 'text' ? '' : st.text, qt: st.kind, lessonId: L.id, lessonTitle: L.title });
+      if (st.answer) {
+        entry.exp = plainUpper(st.answer);
+        entry.grade = norm(a) === norm(st.answer) ? 'full' : 'none';
+      }
+    }
+    log.unshift(entry);
+    PS('log', log);
+    touchSession().entries++;
+    saveActivity();
+    clearText();
+    $('question').value = '';
+    renderLog();
+    if (st) {
+      if (run.step + 1 < runLesson().steps.length) { toast('Αποθηκεύτηκε. Επόμενο βήμα.'); goStep(run.step + 1); }
+      else { toast('Το μάθημα ολοκληρώθηκε και οι απαντήσεις είναι στο ημερολόγιο.'); endLesson(); }
+    } else toast('Αποθηκεύτηκε στο ημερολόγιο');
+  }
+
+  /* ---------- lessons: running ---------- */
+  const runLesson = () => run && lessons.find(l => l.id === run.lessonId);
+  const runStep = () => { const L = runLesson(); return L ? L.steps[run.step] : null; };
+  function startLesson(id) {
+    const L = lessons.find(l => l.id === id);
+    if (!L || !L.steps.length) { toast('Το μάθημα δεν έχει βήματα.'); return; }
+    run = { lessonId: id, step: 0, prevStage: S.stage };
+    closeDrawer();
+    goStep(0);
+  }
+  function goStep(i) {
+    const L = runLesson();
+    if (!L) return;
+    run.step = Math.max(0, Math.min(i, L.steps.length - 1));
+    PS('run', run);
+    const st = L.steps[run.step];
+    if (st.kind === 'choice' && st.choices && st.choices.length) {
+      if (S.stage !== 'choice') { run.prevStage = S.stage; PS('run', run); }
+      S.stage = 'choice';
+    } else if (S.stage === 'choice' && run.prevStage && run.prevStage !== 'choice') {
+      S.stage = run.prevStage;
+    }
+    save();
+    renderLessonBar();
+    render();
+  }
+  function endLesson() {
+    if (run && S.stage === 'choice' && run.prevStage && run.prevStage !== 'choice') { S.stage = run.prevStage; save(); }
+    run = null;
+    PS('run', null);
+    renderLessonBar();
+    render();
+  }
+  function renderLessonBar() {
+    const L = runLesson(), st = runStep();
+    $('q-row').hidden = !!L;
+    $('lesson-head').hidden = !L;
+    $('lb-text').hidden = !L;
+    $('save-lbl').textContent = L ? 'Αποθήκευση και επόμενο' : 'Αποθήκευση';
+    if (!L) return;
+    $('lb-title').textContent = L.title;
+    $('lb-title').title = L.title;
+    $('lb-step').textContent = `Βήμα ${run.step + 1} από ${L.steps.length}`;
+    $('lb-type').textContent = KIND_LABEL[st.kind] || '';
+    $('lb-type').dataset.k = st.kind;
+    $('lb-text').textContent = st.text;
+    $('lb-text').classList.toggle('passage', st.kind === 'text');
+    $('lb-prev').disabled = run.step === 0;
+    $('lb-next').disabled = run.step >= L.steps.length - 1;
+  }
+  $('lb-prev').addEventListener('click', () => goStep(run.step - 1));
+  $('lb-next').addEventListener('click', () => goStep(run.step + 1));
+  $('lb-say').addEventListener('click', () => { const st = runStep(); if (st) say(st.text); });
+  $('lb-end').addEventListener('click', e => armButton(e.currentTarget, 'Τέλος μαθήματος;', endLesson));
+
+  /* ---------- lessons: library and editor ---------- */
+  const lessonMeta = L => {
+    const q = L.steps.filter(s => s.kind !== 'text').length, t = L.steps.length - q;
+    const done = log.filter(e => e.lessonId === L.id);
+    const last = done.length ? 'τελευταία φορά ' + new Date(done[0].t).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' }) : 'δεν έχει γίνει ακόμα';
+    return `${t} ${t === 1 ? 'κείμενο' : 'κείμενα'} · ${q} ${q === 1 ? 'ερώτηση' : 'ερωτήσεις'} · ${last}`;
+  };
+  function renderLessons() {
+    const ul = $('lesson-list');
+    ul.innerHTML = '';
+    if (!lessons.length) {
+      ul.innerHTML = '<li class="empty">Δεν υπάρχουν μαθήματα. Πάτα «Νέο μάθημα» για να φτιάξεις το πρώτο.</li>';
+      return;
+    }
+    for (const L of lessons) {
+      const li = document.createElement('li');
+      li.innerHTML = `<div class="grow"><div class="t">${esc(L.title)}${L.example ? '<span class="tag">Παράδειγμα</span>' : ''}${run && run.lessonId === L.id ? '<span class="tag cur">Σε εξέλιξη</span>' : ''}</div><div class="m">${esc(lessonMeta(L))}</div></div>
+        <div class="btns">
+          <button type="button" class="act sm primary" data-a="start">Έναρξη</button>
+          <button type="button" class="act sm" data-a="edit">Επεξεργασία</button>
+          <button type="button" class="act sm" data-a="pdf">PDF</button>
+          <button type="button" class="act sm" data-a="del">Διαγραφή</button>
+        </div>`;
+      li.addEventListener('click', ev => {
+        const b = ev.target.closest('[data-a]');
+        if (!b) return;
+        const a = b.dataset.a;
+        if (a === 'start') startLesson(L.id);
+        else if (a === 'edit') openEditor(L);
+        else if (a === 'pdf') lessonPdf(L);
+        else if (a === 'del') armButton(b, 'Σίγουρα;', () => {
+          lessons = lessons.filter(x => x.id !== L.id); LS.set('lessons', lessons);
+          if (run && run.lessonId === L.id) endLesson();
+          renderLessons();
+        });
+      });
+      ul.appendChild(li);
+    }
+  }
+  let draft = null;
+  function openEditor(L) {
+    draft = L ? JSON.parse(JSON.stringify(L)) : { id: uid(), title: '', created: Date.now(), steps: [{ kind: 'text', text: '' }, { kind: 'known', text: '', answer: '' }] };
+    delete draft.example;
+    $('ed-heading').textContent = L ? 'Επεξεργασία μαθήματος' : 'Νέο μάθημα';
+    $('ed-title').value = draft.title;
+    $('lessons-list-view').hidden = true;
+    $('lesson-editor').hidden = false;
+    renderSteps();
+    $('pane-lessons').scrollTop = 0;
+  }
+  function closeEditor() { draft = null; $('lesson-editor').hidden = true; $('lessons-list-view').hidden = false; renderLessons(); }
+  function renderSteps() {
+    const box = $('ed-steps');
+    box.innerHTML = '';
+    draft.steps.forEach((s, i) => {
+      const c = document.createElement('div');
+      c.className = 'step-card';
+      const opts = Object.entries(KIND_LABEL).map(([k, v]) => `<option value="${k}"${k === s.kind ? ' selected' : ''}>${k === 'text' ? 'Κείμενο για ανάγνωση' : 'Ερώτηση: ' + v.toLowerCase()}</option>`).join('');
+      c.innerHTML = `<div class="hd"><span class="no">${i + 1}</span><select data-f="kind" id="st-kind-${i}">${opts}</select><span class="sp"></span>
+          <button type="button" class="act sm icon" data-m="up" title="Πάνω" aria-label="Πάνω"${i === 0 ? ' disabled' : ''}><svg class="ico" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+          <button type="button" class="act sm icon" data-m="down" title="Κάτω" aria-label="Κάτω"${i === draft.steps.length - 1 ? ' disabled' : ''}><svg class="ico" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+          <button type="button" class="act sm icon" data-m="del" title="Αφαίρεση" aria-label="Αφαίρεση"><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+        <textarea class="inp" data-f="text" id="st-text-${i}" rows="${s.kind === 'text' ? 4 : 2}" placeholder="${s.kind === 'text' ? 'Το κείμενο που θα διαβάσει ο συνεργάτης' : 'Η ερώτηση'}">${esc(s.text || '')}</textarea>
+        ${s.kind === 'choice' ? `<input class="inp" data-f="choices" id="st-ch-${i}" type="text" placeholder="Επιλογές χωρισμένες με κόμμα, π.χ. ΗΛΙΟΣ, ΦΕΓΓΑΡΙ, ΑΣΤΕΡΙ" value="${esc((s.choices || []).join(', '))}">` : ''}
+        ${s.kind === 'known' || s.kind === 'choice' ? `<input class="inp" data-f="answer" id="st-ans-${i}" type="text" placeholder="Σωστή απάντηση${s.kind === 'choice' ? ' (προαιρετικά)' : ''}" value="${esc(s.answer || '')}">` : ''}`;
+      c.addEventListener('input', ev => {
+        const f = ev.target.dataset.f;
+        if (f === 'text' || f === 'answer') s[f] = ev.target.value;
+        if (f === 'choices') s.choices = ev.target.value.split(',').map(x => x.trim()).filter(Boolean);
+      });
+      c.addEventListener('change', ev => { if (ev.target.dataset.f === 'kind') { s.kind = ev.target.value; renderSteps(); } });
+      c.addEventListener('click', ev => {
+        const m = ev.target.closest('[data-m]');
+        if (!m) return;
+        const j = m.dataset.m === 'up' ? i - 1 : i + 1;
+        if (m.dataset.m === 'del') draft.steps.splice(i, 1);
+        else [draft.steps[i], draft.steps[j]] = [draft.steps[j], draft.steps[i]];
+        renderSteps();
+      });
+      box.appendChild(c);
+    });
+  }
+  $('ed-add-text').addEventListener('click', () => { draft.steps.push({ kind: 'text', text: '' }); renderSteps(); });
+  $('ed-add-q').addEventListener('click', () => { draft.steps.push({ kind: 'known', text: '', answer: '' }); renderSteps(); });
+  $('ed-cancel').addEventListener('click', closeEditor);
+  $('ed-save').addEventListener('click', () => {
+    draft.title = $('ed-title').value.trim();
+    draft.steps = draft.steps.filter(s => (s.text || '').trim());
+    if (!draft.title) { toast('Δώσε έναν τίτλο στο μάθημα.'); $('ed-title').focus(); return; }
+    if (!draft.steps.length) { toast('Πρόσθεσε τουλάχιστον ένα κείμενο ή μία ερώτηση.'); return; }
+    for (const s of draft.steps) if (s.kind === 'choice' && (!s.choices || s.choices.length < 2)) { toast('Κάθε ερώτηση επιλογής χρειάζεται τουλάχιστον 2 επιλογές.'); return; }
+    const i = lessons.findIndex(l => l.id === draft.id);
+    if (i >= 0) lessons[i] = draft; else lessons.unshift(draft);
+    LS.set('lessons', lessons);
+    toast('Το μάθημα αποθηκεύτηκε');
+    closeEditor();
+  });
+  $('lesson-new').addEventListener('click', () => openEditor(null));
+
+  /* AI-written lessons, through the viewer's own Claude account */
+  let sampleApi = null, aiCtl = null;
+  const capUse = name => (window.claude && typeof window.claude.use === 'function') ? window.claude.use(name).catch(() => null) : Promise.resolve(null);
+  capUse('sample').then(s => { sampleApi = s; $('ai-open').hidden = !s; });
+  $('ai-open').addEventListener('click', () => { $('ai-box').hidden = false; $('ai-topic').focus(); });
+  $('ai-cancel').addEventListener('click', () => { if (aiCtl) aiCtl.abort(); $('ai-box').hidden = true; $('ai-status').hidden = true; });
+  $('ai-go').addEventListener('click', async () => {
+    const topic = $('ai-topic').value.trim();
+    if (!topic) { toast('Γράψε το θέμα του μαθήματος.'); return; }
+    const prompt = `Γράψε ένα σύντομο μάθημα για μαθητή που επικοινωνεί γράφοντας σε πίνακα γραμμάτων (στένσιλ, πίνακας, πληκτρολόγιο).
+Θέμα: ${topic}
+Ηλικία και επίπεδο: ${$('ai-level').value}
+Γλώσσα του μαθήματος: ελληνικά
+
+Δομή: 3 τμήματα κειμένου, 2 έως 4 προτάσεις το καθένα, με ενδιαφέρον και σεβασμό στην ηλικία, ποτέ παιδικίστικο για μεγαλύτερους.
+Μετά από κάθε τμήμα 2 ερωτήσεις: μία "known" (η απάντηση είναι μία λέξη που υπάρχει αυτούσια στο κείμενο) και μία "choice" (3 σύντομες επιλογές, η μία σωστή).
+Στο τέλος μία "semi" (ημι-ανοιχτή, π.χ. προτίμηση ή μικρή γνώμη) και μία "open" (ανοιχτή ερώτηση σκέψης).
+Οι απαντήσεις και οι επιλογές γράφονται με κεφαλαία χωρίς τόνους.
+
+Απάντησε ΜΟΝΟ με JSON σε αυτή τη μορφή:
+{"title":"...","steps":[{"kind":"text","text":"..."},{"kind":"known","text":"ερώτηση","answer":"ΛΕΞΗ"},{"kind":"choice","text":"ερώτηση","choices":["ΑΑΑ","ΒΒΒ","ΓΓΓ"],"answer":"ΑΑΑ"},{"kind":"semi","text":"..."},{"kind":"open","text":"..."}]}`;
+    const status = $('ai-status');
+    status.hidden = false;
+    status.textContent = 'Γράφεται το μάθημα. Συνήθως παίρνει 20 έως 60 δευτερόλεπτα.';
+    $('ai-go').disabled = true;
+    aiCtl = new AbortController();
+    try {
+      const data = await sampleApi.json(prompt, { modelTier: 'default', signal: aiCtl.signal });
+      const steps = Array.isArray(data && data.steps) ? data.steps.filter(s => s && KIND_LABEL[s.kind] && typeof s.text === 'string').map(s => ({
+        kind: s.kind, text: s.text,
+        ...(s.answer ? { answer: plainUpper(String(s.answer)) } : {}),
+        ...(Array.isArray(s.choices) ? { choices: s.choices.map(c => plainUpper(String(c))).slice(0, 4) } : {})
+      })) : [];
+      if (!steps.length) throw { code: 'invalid_json' };
+      $('ai-box').hidden = true;
+      status.hidden = true;
+      openEditor(null);
+      draft.title = String(data.title || topic);
+      draft.steps = steps;
+      $('ed-title').value = draft.title;
+      renderSteps();
+      toast('Το μάθημα είναι έτοιμο. Έλεγξέ το και πάτα Αποθήκευση.');
+    } catch (e) {
+      const code = e && e.code;
+      if (code === 'cancelled') status.hidden = true;
+      else if (code === 'not_granted' || code === 'sampling_disabled' || code === 'not_declared' || code === 'capability_disabled' || code === 'capability_removed') {
+        status.textContent = 'Η βοήθεια AI δεν επιτράπηκε σε αυτή τη σελίδα. Μπορείς να φτιάξεις το μάθημα με το «Νέο μάθημα».';
+        $('ai-open').hidden = true;
+      } else if (code === 'rate_limited') status.textContent = 'Έγιναν πολλά αιτήματα. Δοκίμασε ξανά σε λίγα λεπτά.';
+      else if (code === 'invalid_json') status.textContent = 'Η απάντηση δεν είχε τη σωστή μορφή. Πάτα ξανά «Δημιουργία μαθήματος».';
+      else status.textContent = 'Κάτι δεν πήγε καλά με τη σύνδεση. Πάτα ξανά «Δημιουργία μαθήματος».';
+    } finally {
+      $('ai-go').disabled = false;
+      aiCtl = null;
+    }
+  });
+
+  /* ---------- gradebook ---------- */
+  const fmtTime = t => new Date(t).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' });
+  const fmtDay = t => new Date(t).toLocaleDateString('el-GR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const fmtDate = t => new Date(t).toLocaleDateString('el-GR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const SUP_LABEL = { stand: 'σε βάση', held: 'στο χέρι' };
+  function renderLog() {
+    const ul = $('log-list');
+    ul.innerHTML = '';
+    if (!log.length) {
+      ul.innerHTML = '<li class="empty">Το ημερολόγιο είναι άδειο. Μετά από κάθε απάντηση πάτα Αποθήκευση και θα εμφανιστεί εδώ με την ώρα, την ερώτηση και τον βαθμό.</li>';
+      return;
+    }
+    let day = '';
+    for (const e of log) {
+      const d = fmtDay(e.t);
+      if (d !== day) {
+        day = d;
+        const h = document.createElement('li');
+        h.className = 'log-day';
+        h.textContent = d;
+        ul.appendChild(h);
+      }
+      const li = document.createElement('li');
+      li.className = 'log-item';
+      const meta = [e.lessonTitle ? esc(e.lessonTitle) : '', e.qt ? `<span class="type-chip" data-k="${e.qt}">${KIND_LABEL[e.qt]}</span>` : '', e.sup ? 'ταμπλέτα ' + SUP_LABEL[e.sup] : '', e.example ? '<span class="tag">Παράδειγμα</span>' : ''].filter(Boolean).join(' · ');
+      li.innerHTML = `<time>${fmtTime(e.t)}</time>
+        ${meta ? `<div class="meta">${meta}</div>` : ''}
+        ${e.q ? `<div class="q">${esc(e.q)}</div>` : ''}
+        <div class="a">${esc(shown(e.a))}</div>
+        ${e.exp ? `<div class="exp">Αναμενόμενη απάντηση: ${esc(e.exp)}</div>` : ''}
+        <div class="grade">
+          ${['full', 'half', 'none'].map(g => `<button type="button" class="gchip" data-g="${g}" aria-pressed="${e.grade === g}">${g === 'full' ? '✓' : g === 'half' ? '½' : '✗'} ${GRADE_LABEL[g]}</button>`).join('')}
+          <input class="note-inp" type="text" id="note-${e.id}" placeholder="Σημείωση" value="${esc(e.note || '')}">
+        </div>
+        <button type="button" class="del">Διαγραφή</button>`;
+      li.querySelector('.grade').addEventListener('click', ev => {
+        const g = ev.target.closest('[data-g]');
+        if (!g) return;
+        e.grade = e.grade === g.dataset.g ? null : g.dataset.g;
+        PS('log', log);
+        li.querySelectorAll('[data-g]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.g === e.grade)));
+      });
+      li.querySelector('.note-inp').addEventListener('change', ev => { e.note = ev.target.value.trim(); PS('log', log); });
+      li.querySelector('.del').addEventListener('click', ev => {
+        const b = ev.currentTarget;
+        if (!b.classList.contains('arm')) {
+          b.classList.add('arm'); b.textContent = 'Σίγουρα;';
+          setTimeout(() => { if (b.isConnected) { b.classList.remove('arm'); b.textContent = 'Διαγραφή'; } }, 3000);
+          return;
+        }
+        log = log.filter(x => x.id !== e.id); PS('log', log); renderLog();
+      });
+      ul.appendChild(li);
+    }
+  }
+  $('log-copy').addEventListener('click', async () => {
+    if (!log.length) { toast('Δεν υπάρχουν καταχωρίσεις για αντιγραφή.'); return; }
+    const out = log.slice().reverse().map(e => `${fmtDay(e.t)} ${fmtTime(e.t)}${e.lessonTitle ? ' · ' + e.lessonTitle : ''}\n${e.q ? 'Ερώτηση: ' + e.q + '\n' : ''}Απάντηση: ${shown(e.a)}${e.grade ? '\nΒαθμός: ' + GRADE_LABEL[e.grade] : ''}${e.note ? '\nΣημείωση: ' + e.note : ''}`).join('\n\n');
+    try {
+      await navigator.clipboard.writeText(out);
+      toast('Αντιγράφηκε. Μπορείς να το επικολλήσεις σε email ή έγγραφο.');
+    } catch (err) {
+      const ta = $('copyArea');
+      ta.hidden = false; ta.value = out; ta.focus(); ta.select();
+      toast('Το κείμενο είναι επιλεγμένο. Πάτα Ctrl+C για αντιγραφή.');
+    }
+  });
+  $('log-clear').addEventListener('click', e => {
+    if (!log.length) return;
+    armButton(e.currentTarget, 'Πάτα ξανά για διαγραφή όλων', () => { log = []; PS('log', log); renderLog(); });
+  });
+
+  /* ---------- progress ---------- */
+  const profileName = () => (profiles.find(p => p.id === pid) || {}).name || 'Μαθητής';
+  const pct = x => x == null || isNaN(x) ? '—' : Math.round(x * 100) + '%';
+  const num1 = x => x == null || isNaN(x) ? '—' : (Math.round(x * 10) / 10).toString().replace('.', ',');
+  function stats(days) {
+    const since = days ? Date.now() - days * 86400000 : 0;
+    const ss = sessions.filter(s => s.start >= since && s.letters > 0);
+    const ev = events.filter(e => e.t >= since);
+    const lg = log.filter(e => e.t >= since && !e.example);
+    const letters = ev.length;
+    const activeMin = ss.reduce((a, s) => a + s.activeMs, 0) / 60000;
+    const known = lg.filter(e => e.qt === 'known');
+    const knownOk = known.filter(e => e.grade === 'full').length;
+    const stand = ev.filter(e => e.sup !== 'held').length;
+    const perLetter = {};
+    for (const e of ev) {
+      if (!/\p{L}/u.test(e.c)) continue;
+      const p = perLetter[e.c] || (perLetter[e.c] = { n: 0, del: 0, tn: 0, tok: 0 });
+      p.n++; if (e.del) p.del++;
+      if (e.ok != null) { p.tn++; if (e.ok) p.tok++; }
+    }
+    const types = {};
+    for (const e of lg) {
+      const k = e.qt || 'free';
+      const t = types[k] || (types[k] = { n: 0, full: 0, half: 0, none: 0, ungraded: 0 });
+      t.n++; t[e.grade || 'ungraded']++;
+    }
+    const points = ss.filter(s => s.activeMs > 20000).map(s => ({ t: s.start, v: s.letters / (s.activeMs / 60000), n: s.letters }));
+    return {
+      sessions: ss.length, letters, lpm: activeMin > .3 ? letters / activeMin : null,
+      knownRate: known.length ? knownOk / known.length : null, knownN: known.length,
+      standRate: letters ? stand / letters : null, perLetter, types, points, answers: lg.length,
+      corrected: letters ? ev.filter(e => e.del).length / letters : null, since
+    };
+  }
+  function chartSVG(points, pal) {
+    const W = 560, H = 190, L = 36, R = 14, T = 14, B = 26;
+    if (points.length < 2) return '';
+    const maxV = Math.max(...points.map(p => p.v));
+    const step = maxV <= 10 ? 2 : maxV <= 25 ? 5 : maxV <= 60 ? 10 : 20;
+    const top = Math.max(step, Math.ceil(maxV / step) * step);
+    const x = i => L + (i * (W - L - R)) / (points.length - 1);
+    const y = v => T + (H - T - B) * (1 - v / top);
+    let g = '';
+    for (let v = 0; v <= top; v += step) {
+      g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" ${pal ? `stroke="${pal.grid}"` : 'class="grid-l"'}/>` +
+        `<text x="${L - 8}" y="${y(v) + 4}" text-anchor="end" ${pal ? `fill="${pal.text}" font-size="11"` : 'class="axis-t"'}>${v}</text>`;
+    }
+    const lbl = i => new Date(points[i].t).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' });
+    const lab = [0, points.length - 1].map(i => `<text x="${x(i)}" y="${H - 6}" text-anchor="${i ? 'end' : 'start'}" ${pal ? `fill="${pal.text}" font-size="11"` : 'class="axis-t"'}>${esc(lbl(i))}</text>`).join('');
+    const d = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
+    const area = d + ` L${x(points.length - 1).toFixed(1)} ${y(0)} L${x(0).toFixed(1)} ${y(0)} Z`;
+    const dots = points.map((p, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="${i === points.length - 1 ? 5 : 4}" ${pal ? `fill="${i === points.length - 1 ? pal.line : '#ffffff'}" stroke="${pal.line}" stroke-width="2"` : `class="pt${i === points.length - 1 ? ' last' : ''}"`}/>`).join('');
+    const hits = pal ? '' : points.map((p, i) => `<rect class="hit" data-i="${i}" x="${(x(i) - (W - L - R) / (points.length - 1) / 2).toFixed(1)}" y="${T}" width="${((W - L - R) / (points.length - 1)).toFixed(1)}" height="${H - T - B}"/>`).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Γράμματα ανά λεπτό ανά συνεδρία">${g}
+      <path d="${area}" ${pal ? `fill="${pal.area}"` : 'class="ar"'}/><path d="${d}" ${pal ? `fill="none" stroke="${pal.line}" stroke-width="2"` : 'class="ln"'}/>
+      <line class="cross" id="cross" x1="0" x2="0" y1="${T}" y2="${H - B}" visibility="hidden"/>${dots}${lab}${hits}</svg>`;
+  }
+  function renderProgress() {
+    document.querySelectorAll('[data-period]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.period === S.period)));
+    const st = stats(S.period);
+    $('pr-tiles').innerHTML = [
+      [st.sessions, 'συνεδρίες'],
+      [st.letters, 'γράμματα επιλέχθηκαν'],
+      [num1(st.lpm), 'γράμματα ανά λεπτό'],
+      [pct(st.knownRate), `σωστές γνωστές ερωτήσεις${st.knownN ? ` (${st.knownN})` : ''}`],
+      [pct(st.standRate), 'γράμματα με την ταμπλέτα σε βάση']
+    ].map(([v, l]) => `<div class="tile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+    const box = $('pr-chart');
+    const pts = st.points.slice(-24);
+    if (pts.length < 2) {
+      box.innerHTML = '<p class="empty" style="padding:0">Το γράφημα εμφανίζεται μετά από δύο συνεδρίες. Μια συνεδρία ξεκινά με το πρώτο γράμμα και τελειώνει μετά από 20 λεπτά χωρίς χρήση.</p>';
+    } else {
+      box.innerHTML = chartSVG(pts) + '<div class="tip" id="chart-tip" hidden></div>';
+      const svg = box.querySelector('svg'), tip = $('chart-tip'), cross = box.querySelector('#cross');
+      svg.addEventListener('pointermove', ev => {
+        const r = ev.target.closest('.hit');
+        if (!r) return;
+        const i = +r.dataset.i, p = pts[i];
+        const c = svg.querySelectorAll('circle')[i];
+        const bb = svg.getBoundingClientRect(), sc = bb.width / 560;
+        const cx = +c.getAttribute('cx'), cy = +c.getAttribute('cy');
+        cross.setAttribute('x1', cx); cross.setAttribute('x2', cx); cross.setAttribute('visibility', 'visible');
+        tip.hidden = false;
+        tip.style.left = cx * sc + 'px';
+        tip.style.top = cy * sc + 'px';
+        tip.textContent = `${new Date(p.t).toLocaleDateString('el-GR', { day: 'numeric', month: 'short' })} ${fmtTime(p.t)} · ${num1(p.v)} γρ./λεπτό · ${p.n} γράμματα`;
+      });
+      svg.addEventListener('pointerleave', () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); });
+    }
+    const A = AB.letters;
+    $('pr-letters').innerHTML = [...A].map(ch => {
+      const p = st.perLetter[ch];
+      if (!p) return `<div class="lcell none" title="${ch}: δεν επιλέχθηκε"><b>${ch}</b><span>—</span></div>`;
+      const acc = 1 - p.del / p.n;
+      const t = p.tn ? ` · ${p.tok}/${p.tn} σωστά σε γνωστές` : '';
+      return `<div class="lcell" style="--a:${Math.round(8 + acc * 37)}%" title="${ch}: ${p.n} επιλογές, ${p.del} σβήστηκαν${t}"><b>${ch}</b><span>${pct(acc)}</span></div>`;
+    }).join('');
+    const rows = Object.entries(st.types);
+    $('pr-types').innerHTML = rows.length
+      ? '<tr><th>Είδος</th><th class="n">Απαντήσεις</th><th class="n">Σωστές</th><th class="n">Μισές</th><th class="n">Λάθος</th><th class="n">Χωρίς βαθμό</th></tr>' +
+        rows.map(([k, t]) => `<tr><td>${k === 'free' ? 'Ελεύθερο γράψιμο' : KIND_LABEL[k]}</td><td class="n">${t.n}</td><td class="n">${t.full}</td><td class="n">${t.half}</td><td class="n">${t.none}</td><td class="n">${t.ungraded}</td></tr>`).join('')
+      : '<tr><td class="empty">Δεν υπάρχουν αποθηκευμένες απαντήσεις σε αυτή την περίοδο.</td></tr>';
+  }
+  document.querySelectorAll('[data-period]').forEach(b => b.addEventListener('click', () => { S.period = +b.dataset.period; save(); renderProgress(); }));
+
+  /* ---------- files: PDF, CSV, backup ---------- */
+  let downloadsApi = null;
+  capUse('downloads').then(d => { downloadsApi = d; });
+  async function offerFile(filename, data) {
+    if (downloadsApi) {
+      try {
+        const r = await downloadsApi.save({ filename, data });
+        if (r && r.status === 'saved') toast('Το αρχείο αποθηκεύτηκε');
+      } catch (e) {
+        if (e && e.code === 'declined') return;
+        if (e && e.code === 'rate_limited') toast('Υπάρχει ήδη ανοιχτό παράθυρο αποθήκευσης.');
+        else toast('Η αποθήκευση αρχείων δεν είναι διαθέσιμη εδώ.');
+      }
+      return;
+    }
+    try {
+      const blob = data instanceof Blob ? data : new Blob([data]);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    } catch (e) { toast('Η αποθήκευση αρχείων δεν είναι διαθέσιμη εδώ.'); }
+  }
+  const loadScript = src => new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('load ' + src));
+    document.head.appendChild(s);
+  });
+  async function pdfLibs() {
+    if (!window.html2canvas) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    if (!window.jspdf) await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+  }
+  // renders an off-screen A4 column and slices it into pages at block boundaries (elements marked .pb)
+  async function makePdf(filename, html) {
+    toast('Ετοιμάζεται το PDF…');
+    const root = document.createElement('div');
+    root.className = 'pdf-root';
+    root.innerHTML = html;
+    document.body.appendChild(root);
+    try {
+      await pdfLibs();
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const PAGE = Math.round(794 * 297 / 210), M = 48;
+      const rootTop = root.getBoundingClientRect().top;
+      const blocks = [...root.querySelectorAll('.pb')].map(b => { const r = b.getBoundingClientRect(); return { top: r.top - rootTop, bottom: r.bottom - rootTop }; });
+      const total = root.scrollHeight;
+      const slices = [];
+      let start = 0;
+      for (const b of blocks) {
+        if (b.bottom - start > PAGE - M && b.top > start + 40) { slices.push([start, b.top]); start = Math.max(0, b.top - M); }
+      }
+      slices.push([start, total]);
+      const canvas = await window.html2canvas(root, { scale: 2, backgroundColor: '#ffffff', logging: false });
+      const pdf = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+      const pw = pdf.internal.pageSize.getWidth(), k = pw / 794;
+      slices.forEach(([s, e], i) => {
+        const c = document.createElement('canvas');
+        c.width = canvas.width; c.height = Math.max(1, Math.round((e - s) * 2));
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(canvas, 0, Math.round(s * 2), c.width, c.height, 0, 0, c.width, c.height);
+        if (i) pdf.addPage();
+        pdf.addImage(c.toDataURL('image/jpeg', .92), 'JPEG', 0, 0, pw, (e - s) * k);
+      });
+      await offerFile(filename, pdf.output('blob'));
+    } catch (e) {
+      toast('Δεν ήταν δυνατή η δημιουργία PDF. Έλεγξε τη σύνδεση στο internet και δοκίμασε ξανά.');
+    } finally {
+      root.remove();
+    }
+  }
+  const fileSafe = s => s.normalize('NFC').replace(/\//g, '-').replace(/[\\:*?"<>|]+/g, '').replace(/\s+/g, ' ').trim().slice(0, 60) || 'αρχείο';
+  const PDF_NOTICE = 'Για εκπαιδευτική χρήση. Οι βαθμοί και τα ποσοστά δείχνουν πώς χρησιμοποιήθηκε η εφαρμογή και δεν αποτελούν κλινική αξιολόγηση.<br>Γράμμα Γράμμα · Δημιουργία: Πέτρος Γκόρος · © 2026';
+  const pdfHead = (title, sub) => `<div class="pb"><div class="brandline"><span>Γράμμα Γράμμα</span><span>${esc(fmtDate(Date.now()))}</span></div><h1>${esc(title)}</h1><div class="sub">${esc(sub)}</div></div>`;
+  function reportHtml() {
+    const st = stats(S.period);
+    const period = S.period ? `τελευταίες ${S.period} ημέρες (${fmtDate(st.since)} έως ${fmtDate(Date.now())})` : 'όλο το ιστορικό';
+    const tiles = [[st.sessions, 'συνεδρίες'], [st.letters, 'γράμματα'], [num1(st.lpm), 'γράμματα / λεπτό'], [pct(st.knownRate), 'σωστές γνωστές'], [pct(st.standRate), 'ταμπλέτα σε βάση']]
+      .map(([v, l]) => `<div class="ptile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+    const chart = chartSVG(st.points.slice(-24), { grid: '#e3e8e5', text: '#5b6966', line: '#276468', area: 'rgba(39,100,104,.12)' });
+    const A = AB.letters;
+    const lg = [...A].map(ch => {
+      const p = st.perLetter[ch];
+      return `<div><b>${ch}</b>${p ? `${pct(1 - p.del / p.n)}<br><span class="sub">${p.n}×</span>` : '<span class="sub">—</span>'}</div>`;
+    }).join('');
+    const types = Object.entries(st.types).map(([k, t]) => `<div class="tr pb" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr"><span>${k === 'free' ? 'Ελεύθερο γράψιμο' : KIND_LABEL[k]}</span><span>${t.n}</span><span>${t.full}</span><span>${t.half}</span><span>${t.none}</span><span>${t.ungraded}</span></div>`).join('');
+    const since = st.since;
+    const entries = log.filter(e => e.t >= since && !e.example).slice(0, 150);
+    const gb = entries.map(e => `<div class="tr pb" style="grid-template-columns: 78px 2.2fr 1.6fr 66px 1.2fr"><span>${fmtDate(e.t)}<br><span class="sub">${fmtTime(e.t)}</span></span><span>${e.lessonTitle ? `<b>${esc(e.lessonTitle)}</b><br>` : ''}${esc(e.q || '—')}${e.qt ? `<br><span class="sub">${KIND_LABEL[e.qt]}</span>` : ''}</span><span class="ans">${esc(shown(e.a))}${e.exp ? `<br><span class="sub">αναμενόμενη: ${esc(e.exp)}</span>` : ''}</span><span>${e.grade ? GRADE_LABEL[e.grade] : '—'}</span><span>${esc(e.note || '')}${e.sup ? `<br><span class="sub">ταμπλέτα ${SUP_LABEL[e.sup]}</span>` : ''}</span></div>`).join('');
+    return pdfHead(`Αναφορά προόδου: ${profileName()}`, period) +
+      `<h2 class="pb">Σύνοψη</h2><div class="ptiles pb">${tiles}</div>` +
+      (chart ? `<h2 class="pb">Γράμματα ανά λεπτό, ανά συνεδρία</h2><div class="pb">${chart}</div>` : '') +
+      `<h2 class="pb">Ακρίβεια ανά γράμμα</h2><div class="sub pb" style="margin-bottom:6px">Ποσοστό επιλογών που δεν σβήστηκαν, και πόσες φορές επιλέχθηκε το γράμμα.</div><div class="lg pb">${lg}</div>` +
+      (types ? `<h2 class="pb">Απαντήσεις ανά είδος ερώτησης</h2><div class="tr h pb" style="grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr"><span>Είδος</span><span>Σύνολο</span><span>Σωστές</span><span>Μισές</span><span>Λάθος</span><span>Χωρίς βαθμό</span></div>${types}` : '') +
+      `<h2 class="pb">Βαθμολόγιο</h2>` +
+      (gb ? `<div class="tr h pb" style="grid-template-columns: 78px 2.2fr 1.6fr 66px 1.2fr"><span>Ημερομηνία</span><span>Ερώτηση</span><span>Απάντηση</span><span>Βαθμός</span><span>Σημείωση</span></div>${gb}` : '<div class="sub pb">Δεν υπάρχουν απαντήσεις σε αυτή την περίοδο.</div>') +
+      `<div class="foot pb">Η στήριξη της ταμπλέτας («σε βάση» ή «στο χέρι» του συνεργάτη) καταγράφεται σε κάθε γράμμα από τον συνεργάτη την ώρα της συνεδρίας.<br>${PDF_NOTICE}</div>`;
+  }
+  function lessonPdf(L) {
+    const answers = log.filter(e => e.lessonId === L.id);
+    const steps = L.steps.map((s, i) => {
+      const a = s.kind === 'text' ? null : answers.find(e => e.q === s.text);
+      return `<div class="step pb"><div class="k">${i + 1}. ${KIND_LABEL[s.kind]}</div><div class="txt">${esc(s.text)}</div>` +
+        (s.choices ? `<div class="sub">Επιλογές: ${esc(s.choices.join(' · '))}</div>` : '') +
+        (s.answer ? `<div class="sub">Σωστή απάντηση: ${esc(s.answer)}</div>` : '') +
+        (s.kind !== 'text' ? (a ? `<div style="margin-top:4px">Απάντηση: <span class="ans">${esc(shown(a.a))}</span>${a.grade ? ` · ${GRADE_LABEL[a.grade]}` : ''} <span class="sub">(${fmtDate(a.t)})</span>${a.note ? `<br><span class="sub">${esc(a.note)}</span>` : ''}</div>` : '<div class="line"></div>') : '') +
+        '</div>';
+    }).join('');
+    makePdf(fileSafe(`Μάθημα ${L.title}`) + '.pdf', pdfHead(L.title, `Μάθημα · ${profileName()}${answers.length ? ' · με τις πιο πρόσφατες απαντήσεις' : ''}`) + steps + `<div class="foot pb">${PDF_NOTICE}</div>`);
+  }
+  $('pr-pdf').addEventListener('click', () => makePdf(fileSafe(`Αναφορά ${profileName()} ${fmtDate(Date.now())}`) + '.pdf', reportHtml()));
+  function gradebookCsv() {
+    const q = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const head = ['Ημερομηνία', 'Ώρα', 'Μάθημα', 'Είδος', 'Ερώτηση', 'Απάντηση', 'Αναμενόμενη', 'Βαθμός', 'Σημείωση', 'Ταμπλέτα'];
+    const rows = log.filter(e => !e.example).map(e => [fmtDate(e.t), fmtTime(e.t), e.lessonTitle || '', e.qt ? KIND_LABEL[e.qt] : 'Ελεύθερο', e.q || '', shown(e.a), e.exp || '', e.grade ? GRADE_LABEL[e.grade] : '', e.note || '', e.sup ? SUP_LABEL[e.sup] : '']);
+    const csv = '﻿' + [head, ...rows].map(r => r.map(q).join(';')).join('\r\n');
+    offerFile(fileSafe(`Βαθμολόγιο ${profileName()}`) + '.csv', csv);
+  }
+  $('log-csv').addEventListener('click', gradebookCsv);
+  $('pr-csv').addEventListener('click', gradebookCsv);
+  $('pr-backup').addEventListener('click', () => {
+    PS('events', events); PS('sessions', sessions);
+    const cur = pid;
+    const data = { app: 'gramma-gramma', version: 1, exported: new Date().toISOString(), lessons, profiles: profiles.map(p => {
+      pid = p.id;
+      const d = {};
+      for (const k of PROFILE_KEYS) d[k] = PG(k, null);
+      return { id: p.id, name: p.name, avatar: p.avatar, data: d };
+    }) };
+    pid = cur;
+    offerFile(`Γράμμα Γράμμα αντίγραφο ${fmtDate(Date.now()).replace(/\//g, '-')}.json`, JSON.stringify(data));
+  });
+  $('pr-restore').addEventListener('click', e => armButton(e.currentTarget, 'Αντικαθιστά όλα τα δεδομένα. Πάτα ξανά.', () => $('restore-file').click()));
+  $('restore-file').addEventListener('change', async ev => {
+    const f = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (!data || data.app !== 'gramma-gramma' || !Array.isArray(data.profiles) || !data.profiles.length) throw new Error('format');
+      for (const p of profiles) { pid = p.id; for (const k of PROFILE_KEYS) LS.del(pk(k)); }
+      profiles = data.profiles.map(p => ({ id: String(p.id), name: String(p.name || 'Μαθητής'), ...(AVATARS.includes(p.avatar) ? { avatar: p.avatar } : {}) }));
+      LS.set('profiles', profiles);
+      for (const p of data.profiles) { pid = String(p.id); for (const k of PROFILE_KEYS) if (p.data && p.data[k] != null) PS(k, p.data[k]); }
+      if (Array.isArray(data.lessons)) { lessons = data.lessons; LS.set('lessons', lessons); }
+      switchProfile(profiles[0].id);
+      toast('Τα δεδομένα επανήλθαν από το αρχείο');
+    } catch (e) {
+      loadProfile(LS.get('current', profiles[0].id));
+      toast('Το αρχείο δεν είναι αντίγραφο ασφαλείας του Γράμμα Γράμμα.');
+    }
+  });
+
+  /* ---------- phrases ---------- */
+  function renderPhrases() {
+    const ul = $('ph-list');
+    ul.innerHTML = phrases.length ? '' : '<li class="empty">Δεν υπάρχουν φράσεις. Γράψε μία παραπάνω και πάτα Προσθήκη.</li>';
+    phrases.forEach((p, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<div class="grow"><div class="t">${esc(p)}</div></div><div class="btns"><button type="button" class="act sm" data-a="say">Άκουσε</button><button type="button" class="act sm" data-a="del">Αφαίρεση</button></div>`;
+      li.addEventListener('click', ev => {
+        const b = ev.target.closest('[data-a]');
+        if (!b) return;
+        if (b.dataset.a === 'say') say(p);
+        else { phrases.splice(i, 1); PS('phrases', phrases); renderPhrases(); if (S.stage === 'phrases') render(); }
+      });
+      ul.appendChild(li);
+    });
+  }
+  $('ph-add').addEventListener('click', () => {
+    const v = $('ph-new').value.trim();
+    if (!v) return;
+    phrases.push(v);
+    PS('phrases', phrases);
+    $('ph-new').value = '';
+    renderPhrases();
+    if (S.stage === 'phrases') render();
+  });
+  $('ph-new').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('ph-add').click(); } });
+  $('ph-reset').addEventListener('click', e => armButton(e.currentTarget, 'Πάτα ξανά', () => {
+    phrases = DEFAULT_PHRASES.slice(); PS('phrases', phrases); renderPhrases(); if (S.stage === 'phrases') render();
+  }));
+
+  /* ---------- profiles ---------- */
+  const AVATARS = ['👦', '👧', '🧒', '🧑', '👱', '🐶', '🐱', '🐻', '🐼', '🦊', '🦁', '🐸', '🐢', '🐬', '🦋', '🦖', '🌻', '⭐', '🌈', '🚀', '⚽', '🎵', '🎨', '🚗'];
+  const initialOf = p => ((p.name || '').trim()[0] || 'Μ').toUpperCase();
+  function renderProfileChip() {
+    const p = profiles.find(x => x.id === pid) || {};
+    $('profile-name').textContent = profileName();
+    const av = $('profile-initial');
+    av.textContent = p.avatar || initialOf(p);
+    av.classList.toggle('emoji', !!p.avatar);
+  }
+  function renderProfiles() {
+    const ul = $('pf-list');
+    ul.innerHTML = '';
+    for (const p of profiles) {
+      const li = document.createElement('li');
+      li.className = 'pf';
+      const ss = p.id === pid ? sessions : LS.get('p:' + p.id + ':sessions', []);
+      li.innerHTML = `<button type="button" class="av-btn${p.avatar ? '' : ' letter'}" data-a="av" title="Εικονίδιο μαθητή" aria-label="Εικονίδιο μαθητή" aria-expanded="false">${esc(p.avatar || initialOf(p))}</button>
+        <div class="av-pick" hidden>
+          <button type="button" class="txt" data-av="" aria-pressed="${!p.avatar}">Αρχικό γράμμα</button>
+          ${AVATARS.map(a => `<button type="button" data-av="${a}" aria-pressed="${p.avatar === a}">${a}</button>`).join('')}
+        </div>
+        <div class="grow"><input class="inp" type="text" id="pf-name-${p.id}" value="${esc(p.name)}" aria-label="Όνομα μαθητή"><div class="m">${ss.length} ${ss.length === 1 ? 'συνεδρία' : 'συνεδρίες'}${p.id === pid ? ' · <b>τρέχων μαθητής</b>' : ''}</div></div>
+        <div class="btns">${p.id === pid ? '' : '<button type="button" class="act sm primary" data-a="use">Επιλογή</button>'}${profiles.length > 1 ? '<button type="button" class="act sm" data-a="del">Διαγραφή</button>' : ''}</div>`;
+      li.querySelector('input').addEventListener('change', ev => {
+        p.name = ev.target.value.trim() || p.name;
+        LS.set('profiles', profiles);
+        renderProfileChip();
+      });
+      li.addEventListener('click', ev => {
+        const pick = ev.target.closest('[data-av]');
+        if (pick) {
+          p.avatar = pick.dataset.av || undefined;
+          LS.set('profiles', profiles);
+          renderProfiles();
+          renderProfileChip();
+          return;
+        }
+        const b = ev.target.closest('[data-a]');
+        if (!b) return;
+        if (b.dataset.a === 'av') {
+          const box = li.querySelector('.av-pick');
+          box.hidden = !box.hidden;
+          b.setAttribute('aria-expanded', String(!box.hidden));
+          return;
+        }
+        if (b.dataset.a === 'use') { switchProfile(p.id); toast('Τώρα γράφει: ' + p.name); }
+        else armButton(b, 'Διαγράφει όλο το ιστορικό. Ξανά;', () => {
+          const cur = pid;
+          pid = p.id; for (const k of PROFILE_KEYS) LS.del(pk(k)); pid = cur;
+          profiles = profiles.filter(x => x.id !== p.id);
+          LS.set('profiles', profiles);
+          if (cur === p.id) switchProfile(profiles[0].id); else renderProfiles();
+        });
+      });
+      ul.appendChild(li);
+    }
+  }
+  $('pf-add').addEventListener('click', () => {
+    const name = $('pf-new').value.trim();
+    if (!name) { toast('Γράψε το όνομα του μαθητή.'); return; }
+    const p = { id: 'p' + uid(), name };
+    profiles.push(p);
+    LS.set('profiles', profiles);
+    $('pf-new').value = '';
+    switchProfile(p.id);
+    toast('Προστέθηκε: ' + name);
+  });
+  $('pf-new').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('pf-add').click(); } });
+  function switchProfile(id) {
+    PS('events', events); PS('sessions', sessions);
+    loadProfile(id);
+    syncSettingsUI();
+    applyBody();
+    renderProfileChip();
+    renderLessonBar();
+    render();
+    drawOutput();
+    renderLog();
+    renderProfiles();
+    if (!$('pane-progress').hidden) renderProgress();
+    if (!$('pane-phrases').hidden) renderPhrases();
+  }
+
+  /* ---------- drawer ---------- */
+  const drawer = $('drawer'), scrim = $('scrim');
+  const PANES = ['lessons', 'log', 'progress', 'phrases', 'profiles', 'settings', 'guide'];
+  function openDrawer(pane) {
+    if (document.body.classList.contains('locked')) return;
+    showPane(pane);
+    drawer.classList.add('open'); scrim.hidden = false;
+  }
+  function closeDrawer() { drawer.classList.remove('open'); scrim.hidden = true; $('copyArea').hidden = true; }
+  function showPane(p) {
+    PANES.forEach(n => { $('pane-' + n).hidden = n !== p; });
+    document.querySelectorAll('[data-pane]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.pane === p)));
+    if (p === 'log') renderLog();
+    if (p === 'progress') renderProgress();
+    if (p === 'lessons' && !draft) renderLessons();
+    if (p === 'phrases') renderPhrases();
+    if (p === 'profiles') renderProfiles();
+  }
+  document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.open)));
+  document.querySelectorAll('[data-pane]').forEach(b => b.addEventListener('click', () => showPane(b.dataset.pane)));
+  $('close-drawer').addEventListener('click', closeDrawer);
+  scrim.addEventListener('click', closeDrawer);
+
+  $('fullscreen').addEventListener('click', () => {
+    const el = document.documentElement;
+    if (document.fullscreenElement) { document.exitFullscreen?.(); return; }
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    const fail = () => toast('Η πλήρης οθόνη δεν επιτρέπεται εδώ. Στην ταμπλέτα πρόσθεσε τη σελίδα στην αρχική οθόνη.');
+    if (!req) return fail();
+    try { const p = req.call(el); if (p && p.catch) p.catch(fail); } catch (e) { fail(); }
+  });
+
+  let toastTimer;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.hidden = true; }, 2800);
+  }
+
+  /* press and hold: used to unlock and to leave the break screen */
+  function holdButton(btn, ms, onDone) {
+    const ring = btn.querySelector('.hold-ring');
+    let raf = 0, t0 = 0;
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; if (ring) { ring.hidden = true; ring.style.setProperty('--p', 0); } };
+    btn.addEventListener('pointerdown', e => {
+      if (!btn.dataset.holdOn) return;
+      e.preventDefault();
+      t0 = performance.now();
+      if (ring) ring.hidden = false;
+      const tick = now => {
+        const p = Math.min(1, (now - t0) / ms);
+        if (ring) ring.style.setProperty('--p', p);
+        if (p >= 1) { stop(); btn.dataset.heldAt = Date.now(); onDone(); return; }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => btn.addEventListener(n, stop));
+  }
+  const lockBtn = $('lock-btn');
+  function setLocked(on) {
+    document.body.classList.toggle('locked', on);
+    LS.set('locked', on);
+    lockBtn.classList.toggle('on', on);
+    lockBtn.dataset.holdOn = on ? '1' : '';
+    lockBtn.title = on ? 'Κράτα πατημένο για ξεκλείδωμα' : 'Κλείδωμα ελέγχων';
+    $('lock-ico').innerHTML = on
+      ? '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>'
+      : '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.6-1.7"/>';
+    if (on) closeDrawer();
+  }
+  lockBtn.addEventListener('click', () => {
+    // the click that ends a successful hold must not lock again straight away
+    if (Date.now() - (+lockBtn.dataset.heldAt || 0) < 1500) return;
+    if (document.body.classList.contains('locked')) { toast('Κράτα πατημένο το λουκέτο για ένα δευτερόλεπτο για ξεκλείδωμα.'); return; }
+    setLocked(true);
+    toast('Οι έλεγχοι κλειδώθηκαν. Ο πίνακας γραμμάτων λειτουργεί κανονικά.');
+  });
+  holdButton(lockBtn, 1000, () => { setLocked(false); toast('Ξεκλείδωμα'); });
+
+  let breakTimer = 0, breakStart = 0;
+  const breakExit = $('break-exit');
+  breakExit.dataset.holdOn = '1';
+  $('break-btn').addEventListener('click', () => {
+    $('break').hidden = false;
+    breakStart = Date.now();
+    const upd = () => { const s = Math.floor((Date.now() - breakStart) / 1000); $('break-timer').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+    upd();
+    breakTimer = setInterval(upd, 1000);
+  });
+  holdButton(breakExit, 1000, () => { $('break').hidden = true; clearInterval(breakTimer); });
+
+  /* ---------- settings ---------- */
+  const checks = ['speakLetter', 'speakWord', 'spaceOnBoard', 'lower', 'hc', 'calm', 'predict', 'autoSpace'];
+  const afterCheck = {
+    spaceOnBoard: render,
+    lower: () => { drawOutput(); renderLog(); renderPreds(); },
+    hc: applyBody, calm: applyBody, predict: renderPreds
+  };
+  checks.forEach(key => {
+    const el = $('set-' + key);
+    el.addEventListener('change', () => { S[key] = el.checked; save(); afterCheck[key] && afterCheck[key](); });
+  });
+  // swatches are fixed colours: they show what each theme looks like, not the current one
+  const SKINS = [
+    { id: 'classic', name: 'Κλασικό', sw: ['#edf1ee', '#276468', '#a3bcd2'] },
+    { id: 'notebook', name: 'Τετράδιο', sw: ['#FBF8F1', '#2F5FA8', '#F6D9A8'] },
+    { id: 'aegean', name: 'Αιγαίο', sw: ['#EAF4FA', '#1F6FA3', '#FFE6A3'] },
+    { id: 'garden', name: 'Κήπος', sw: ['#EFF4EA', '#3E7D4F', '#F4C9D6'] }
+  ];
+  function renderSkins() {
+    $('skin-pick').innerHTML = SKINS.map(s =>
+      `<button type="button" class="skin" data-skin="${s.id}" aria-pressed="${s.id === S.skin}"><span class="chips">${s.sw.map(c => `<i style="background:${c}"></i>`).join('')}</span>${s.name}</button>`).join('');
+  }
+  $('skin-pick').addEventListener('click', e => {
+    const b = e.target.closest('[data-skin]');
+    if (!b) return;
+    S.skin = b.dataset.skin; save(); applyBody(); renderSkins();
+  });
+  function applyBody() {
+    document.body.dataset.skin = SKINS.some(s => s.id === S.skin) ? S.skin : 'classic';
+    document.body.classList.toggle('hc', S.hc);
+    document.body.classList.toggle('calm', S.calm);
+    document.body.classList.toggle('nohold', !S.hold);
+  }
+  function fillSetSize() {
+    $('set-setSize').innerHTML = ['small', 'std', 'large'].map(k => `<option value="${k}">${AB.sizeLabel[k]}</option>`).join('');
+    $('set-setSize').value = S.setSize;
+  }
+  const num = x => Number(x).toFixed(2).replace('.', ',');
+  const showRate = () => { $('rate-val').textContent = '×' + num(S.rate); };
+  const showPitch = () => { $('pitch-val').textContent = S.pitch < .97 ? 'πιο βαθιά' : S.pitch > 1.03 ? 'πιο ψηλά' : 'κανονικός'; };
+  const showSize = () => { $('size-val').textContent = S.size + '% του διαθέσιμου χώρου'; };
+  function syncSettingsUI() {
+    checks.forEach(key => { $('set-' + key).checked = !!S[key]; });
+    fillSetSize();
+    renderSkins();
+    $('set-rate').value = S.rate; showRate();
+    $('set-pitch').value = S.pitch; showPitch();
+    $('set-size').value = S.size; showSize();
+    $('set-hold').value = String(S.hold);
+    $('set-lock').value = String(S.lock);
+    $('set-predMin').value = String(S.predMin);
+    $('set-custom').value = customText;
+    syncSupport();
+    loadVoices();
+  }
+  const sample = () => say(AB.sample);
+  $('set-setSize').addEventListener('change', e => { S.setSize = e.target.value; S.stencil = 0; save(); render(); });
+  $('set-rate').addEventListener('input', e => { S.rate = +e.target.value; showRate(); save(); });
+  $('set-rate').addEventListener('change', sample);
+  $('set-pitch').addEventListener('input', e => { S.pitch = +e.target.value; showPitch(); save(); });
+  $('set-pitch').addEventListener('change', sample);
+  $('set-size').addEventListener('input', e => { S.size = +e.target.value; showSize(); save(); fit(); });
+  $('set-voiceEl').addEventListener('change', e => { S.voiceEl = e.target.value; save(); sample(); });
+  $('test-el').addEventListener('click', sample);
+  $('set-hold').addEventListener('change', e => { S.hold = +e.target.value; save(); applyBody(); });
+  $('set-lock').addEventListener('change', e => { S.lock = +e.target.value; save(); });
+  $('set-predMin').addEventListener('change', e => { S.predMin = +e.target.value; save(); renderPreds(); });
+  $('set-custom').addEventListener('input', e => { customText = e.target.value; PS('custom', customText); parseCustom(); renderPreds(); });
+  $('forget-learned').addEventListener('click', e => {
+    armButton(e.currentTarget, 'Πάτα ξανά για επιβεβαίωση', () => {
+      learned = {}; PS('learn', learned); renderPreds();
+      toast('Η εφαρμογή ξέχασε τις λέξεις που είχε μάθει');
+    });
+  });
+  if ('speechSynthesis' in window) {
+    speechSynthesis.addEventListener?.('voiceschanged', loadVoices);
+  } else {
+    $('voice-warn').hidden = false;
+    $('voice-warn').textContent = 'Αυτός ο περιηγητής δεν υποστηρίζει εκφώνηση. Το γράψιμο λειτουργεί κανονικά.';
+  }
+
+  /* ---------- physical keyboard (partner or desktop use) ---------- */
+  const KEY_ALIASES = { '-': '−', '*': '×', '/': '÷' };
+  const LATIN_TO_GREEK = {
+    A: 'Α', B: 'Β', G: 'Γ', D: 'Δ', E: 'Ε', Z: 'Ζ', H: 'Η', U: 'Θ', I: 'Ι', K: 'Κ', L: 'Λ', M: 'Μ',
+    N: 'Ν', J: 'Ξ', O: 'Ο', P: 'Π', R: 'Ρ', S: 'Σ', T: 'Τ', Y: 'Υ', F: 'Φ', X: 'Χ', C: 'Ψ', V: 'Ω'
+  };
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'select' || tag === 'textarea') {
+      if (e.key === 'Enter' && e.target.id === 'question') { e.preventDefault(); saveEntry(); }
+      return;
+    }
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!$('break').hidden) return;
+    if (e.key === 'Escape') { closeDrawer(); closeMenu(); return; }
+    if (drawer.classList.contains('open')) return;
+    // a button reached with Tab keeps its own Enter/Space; one that was only clicked does not
+    const kbFocused = e.target.matches && e.target.matches('button:focus-visible');
+    if (e.key === 'Enter') { if (!kbFocused) { e.preventDefault(); saveEntry(); } return; }
+    if (e.key === 'Backspace') { e.preventDefault(); backspace(); return; }
+    if (e.key === ' ') { if (!kbFocused) { e.preventDefault(); addSpace(); } return; }
+    if (S.stage === 'stencil' && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
+      setStencil(S.stencil + (e.key === 'ArrowRight' ? 1 : -1)); return;
+    }
+    if (e.key.length !== 1) return;
+    let ch = e.key.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+    if (S.stage === 'numbers' && KEY_ALIASES[ch]) ch = KEY_ALIASES[ch];
+    // with a Latin keyboard layout, keys map to the Greek letter printed on the same key
+    if (LATIN_TO_GREEK[ch]) ch = LATIN_TO_GREEK[ch];
+    const A = AB;
+    const isNum = S.stage === 'numbers' && /[0-9+−×÷=,.]/.test(ch);
+    const ok = A.letters.includes(ch) || isNum || (S.stage === 'kbd' && (/[0-9]/.test(ch) || A.punct.includes(ch)));
+    if (!ok) return;
+    e.preventDefault();
+    if (S.stage === 'stencil') {
+      const idx = groups().findIndex(st => st.includes(ch));
+      if (idx >= 0 && idx !== S.stencil) setStencil(idx);
+    }
+    const k = sheet.querySelector(`.key[data-ch="${CSS.escape(ch)}"]`);
+    if (k) flash(k);
+    addChar(ch, isNum);
+  });
+
+  /* ---------- start ---------- */
+  loadProfile(LS.get('current', profiles[0].id));
+  syncSettingsUI();
+  applyBody();
+  setLocked(!!LS.get('locked', false));
+  renderProfileChip();
+  renderLessonBar();
+  render();
+  drawOutput();
+  renderLog();
+  showPane('lessons');
+})();
+</script>
+<script>
+  // works offline once opened: the service worker keeps a copy of the app, fonts and PDF tools
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
