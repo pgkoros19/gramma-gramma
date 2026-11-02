@@ -1,6 +1,6 @@
 // Keeps the app usable without internet once it has been opened.
 // Raise the version when you upload a new index.html, so every device drops the old copy.
-const CACHE = 'gramma-gramma-v2';
+const CACHE = 'gramma-gramma-v3';
 const CORE = [
   './',
   './index.html',

@@ -1570,7 +1570,7 @@ input[type="range"] { accent-color: var(--accent); }
       <ol>
         <li><strong>Στένσιλ.</strong> Λίγα, μεγάλα γράμματα σε κάθε πλαίσιο: 4, 8 ή 12. Το κενό βρίσκεται πάντα στη δεξιά πλευρά. Ο συνεργάτης αλλάζει πλαίσιο από τις καρτέλες ή με τα βέλη.</li>
         <li><strong>Πίνακας.</strong> Όλο το αλφάβητο σε τρεις σειρές, με την ίδια σειρά που είχαν τα στένσιλ των 8.</li>
-        <li><strong>Πληκτρολόγιο.</strong> Διάταξη πληκτρολογίου με αριθμούς, στίξη και διαγραφή.</li>
+        <li><strong>Πληκτρολόγιο.</strong> Διάταξη πληκτρολογίου με αριθμούς, στίξη και διαγραφή. Το πλήκτρο <strong>EN</strong> δίπλα στο κενό αλλάζει σε αγγλικό πληκτρολόγιο (QWERTY) και το <strong>ΕΛ</strong> γυρίζει στα ελληνικά. Τα αγγλικά διαβάζονται με αγγλική φωνή, αν υπάρχει στη συσκευή.</li>
       </ol>
       <p>Στο «Άλλοι πίνακες» υπάρχουν αριθμοί, Ναι / Όχι, συναισθήματα, κλίμακα πόνου, γραπτές επιλογές και έτοιμες φράσεις.</p>
     </div>
@@ -1638,6 +1638,9 @@ input[type="range"] { accent-color: var(--accent); }
     board: ['ΑΒΓΔΕΖΗΘ', 'ΙΚΛΜΝΞΟΠ', 'ΡΣΤΥΦΧΨΩ'],
     kbd: ['1234567890', 'ΕΡΤΥΘΙΟΠ', 'ΑΣΔΦΓΗΞΚΛ', 'ΖΧΨΩΒΝΜ'],
     punct: [',', '.', ';'],
+    // the English keyboard (QWERTY), switched with the ΕΛ / EN key next to the space
+    kbdEn: ['1234567890', 'QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'],
+    punctEn: [',', '.', '?'],
     space: 'κενό',
     sample: 'Γεια σου, είμαι η φωνή που θα διαβάζει τα γράμματα.'
   };
@@ -1728,26 +1731,41 @@ input[type="range"] { accent-color: var(--accent); }
       ιδέα όνομα λόγος τρόπος πράγμα πράγματα κομμάτι αρχή τέλος μέρος δουλειά πρόβλημα λύση ησυχία θόρυβος φως σκοτάδι
       μέλι μελίσσι βασίλισσα εργάτρια λουλούδι λουλούδια φύση φυτά δέντρο δέντρα κούραση ηρεμία ενθουσιασμός βαρεμάρα
       έκπληξη ντροπή περηφάνια λαιμός στήθος διάλειμμα`;
+  const WORDS_EN = `the and to a of i you it is in that we for my me be this have not with do on are your what can
+      he she they was at so but all no yes like want go get know think feel need help please thank thanks sorry
+      hello hi bye good bad very more less now here there when where why how who which because if or then today
+      tomorrow yesterday morning night time day week home school class teacher friend friends mum mom dad mother
+      father sister brother family name water food eat drink play read write talk say tell see look listen hear
+      make take give come stop start finish again want like love happy sad angry scared tired calm excited bored
+      hungry thirsty hot cold sick pain hurts toilet break music book books word words letter letters question answer
+      story game games ball dog cat bird fish horse animal animals tree flower sun moon star sky sea rain snow
+      red blue green yellow black white orange pink purple brown big small new old nice fun funny hard easy right
+      wrong true same different one two three four five six seven eight nine ten am were will would could should
+      did does done going doing said told got had has been an up down out over about from after before just only
+      also still too much many some any every other another our us him her them their his its these those
+      monday tuesday wednesday thursday friday saturday sunday english greek maths science art lesson`;
   const keyOf = w => w.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^\p{L}]/gu, '');
   const plainUpper = w => w.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().normalize('NFC');
-  const isGreekKey = k => /[Α-Ω]/.test(k);
-  const DICT = (() => {
+  const isWordKey = k => /[Α-ΩA-Z]/.test(k);
+  const isLatin = s => /[A-Za-z]/.test(s) && !/[Ͱ-Ͽἀ-῾]/.test(s);
+  const makeDict = words => {
     const map = new Map();
     let i = 0;
-    for (const w of WORDS.split(/\s+/)) {
+    for (const w of words.split(/\s+/)) {
       const k = keyOf(w);
       if (!k || map.has(k)) continue;
       map.set(k, { w: w.normalize('NFC'), rank: i++ });
     }
     return { map, size: i };
-  })();
+  };
+  const DICT = makeDict(WORDS), DICT_EN = makeDict(WORDS_EN);
 
   /* ---------- per-student state ---------- */
   const DEFAULTS = {
     predict: true, predMin: 2, autoSpace: true,
     stage: 'stencil', stencil: 0, setSize: 'std', support: 'stand', skin: 'classic',
     speakLetter: true, speakWord: true, voiceEl: '', rate: 0.9, pitch: 1,
-    size: 100, hold: 0, lock: 300, spaceOnBoard: true,
+    size: 100, hold: 0, lock: 300, spaceOnBoard: true, kbdLang: 'el',
     lower: false, hc: false, calm: false, choices: [], period: 7
   };
   let S, text, log, learned, customText, customMap, phrases, events, sessions, run;
@@ -1818,14 +1836,14 @@ input[type="range"] { accent-color: var(--accent); }
 
   function formOf(k) {
     if (customMap.has(k)) return customMap.get(k);
-    const d = DICT.map.get(k);
+    const d = DICT.map.get(k) || DICT_EN.map.get(k);
     if (d) return d.w;
     const l = learned[k];
     return l ? l.w : null;
   }
   // every known word starting with the prefix, best first
   function matches(prefix) {
-    const d = DICT, out = new Map();
+    const d = isLatin(prefix) ? DICT_EN : DICT, out = new Map();
     for (const [k, v] of d.map) if (k.startsWith(prefix)) out.set(k, { k, w: v.w, score: d.size - v.rank });
     for (const [k, v] of Object.entries(learned)) {
       if (!k.startsWith(prefix)) continue;
@@ -1834,7 +1852,7 @@ input[type="range"] { accent-color: var(--accent); }
       else if (v.n >= 2) out.set(k, { k, w: v.w, score: v.n * 400 });
     }
     for (const [k, w] of customMap) {
-      if (!k.startsWith(prefix) || !isGreekKey(k)) continue;
+      if (!k.startsWith(prefix) || !isWordKey(k)) continue;
       const e = out.get(k) || { k, score: 0 };
       e.w = w; e.score += 100000;
       out.set(k, e);
@@ -1842,7 +1860,7 @@ input[type="range"] { accent-color: var(--accent); }
     return [...out.values()].sort((a, b) => b.score - a.score || a.k.length - b.k.length);
   }
   function learnWord(k, form) {
-    if (!k || k.length < 2 || !isGreekKey(k)) return;
+    if (!k || k.length < 2 || !isWordKey(k)) return;
     const e = learned[k] || (learned[k] = { w: form || formOf(k) || k, n: 0 });
     e.n++;
     PS('learn', learned);
@@ -1884,10 +1902,12 @@ input[type="range"] { accent-color: var(--accent); }
       rows.push([{ ch: '=', raw: true, op: true }, { act: 'space', w: 3, label: A.space }]);
       return { kind: 'board', gap: .16, rows, max: 150 };
     }
-    const rows = A.kbd.map(letters);
-    rows[1].push({ act: 'back', w: 1.5, html: ICON_BACK, label: 'σβήσιμο', fn: true });
-    rows[3].push(...A.punct.map(ch => ({ ch, fn: true })));
-    rows.push([{ act: 'space', w: 6, label: A.space }]);
+    const en = S.kbdLang === 'en';
+    const rows = (en ? A.kbdEn : A.kbd).map(letters);
+    // QWERTY's top row is already ten letters long, so its delete key goes one row down
+    rows[en ? 2 : 1].push({ act: 'back', w: 1.5, html: ICON_BACK, label: 'σβήσιμο', fn: true });
+    rows[3].push(...(en ? A.punctEn : A.punct).map(ch => ({ ch, fn: true })));
+    rows.push([{ act: 'lang', w: 1.5, label: en ? 'ΕΛ' : 'EN', fn: true }, { act: 'space', w: 6, label: A.space }]);
     return { kind: 'kbd', gap: .12, rows, max: 110 };
   }
   // which stencil shape gives bigger letters in the space the stage has right now
@@ -2181,6 +2201,7 @@ input[type="range"] { accent-color: var(--accent); }
   function sayChar(ch) {
     if (!S.speakLetter) return;
     if (GREEK_NAMES[ch]) say(GREEK_NAMES[ch]);
+    else if (/[A-Z]/.test(ch)) say(ch);
     else if (/[0-9]/.test(ch)) say(ch);
     else if (SYMBOL_NAMES[ch]) say(SYMBOL_NAMES[ch]);
   }
@@ -2308,12 +2329,17 @@ input[type="range"] { accent-color: var(--accent); }
     const list = greekVoices();
     return list.find(v => v.name === S.voiceEl) || list[0] || null;
   }
+  // English text (from the English keyboard) is read by the device's best English voice
+  const englishVoice = () => voices
+    .filter(v => v.lang.replace('_', '-').toLowerCase().startsWith('en'))
+    .sort((a, b) => quality(b) - quality(a) || /GB/i.test(b.lang) - /GB/i.test(a.lang))[0] || null;
   function say(t, queued) {
     if (!('speechSynthesis' in window) || !t || !t.trim()) return;
     if (!queued) speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(t);
-    u.lang = TTS;
-    const v = pickVoice();
+    const en = isLatin(t);
+    u.lang = en ? 'en-GB' : TTS;
+    const v = en ? englishVoice() : pickVoice();
     if (v) { u.voice = v; u.lang = v.lang; }
     u.rate = S.rate;
     u.pitch = S.pitch;
@@ -2357,6 +2383,7 @@ input[type="range"] { accent-color: var(--accent); }
     if (now - lastSel < S.lock) return;
     lastSel = now;
     flash(k);
+    if (k.dataset.act === 'lang') { S.kbdLang = S.kbdLang === 'en' ? 'el' : 'en'; save(); render(); return; }
     if (k.classList.contains('pred')) acceptPrediction(k.dataset.word, k.dataset.key);
     else if (k.dataset.word) insertWord(k.dataset.word, k.dataset.say);
     else if (k.dataset.act === 'space') addSpace();
@@ -3316,11 +3343,14 @@ input[type="range"] { accent-color: var(--accent); }
     if (e.key.length !== 1) return;
     let ch = e.key.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
     if (S.stage === 'numbers' && KEY_ALIASES[ch]) ch = KEY_ALIASES[ch];
-    // with a Latin keyboard layout, keys map to the Greek letter printed on the same key
-    if (LATIN_TO_GREEK[ch]) ch = LATIN_TO_GREEK[ch];
+    // with a Latin keyboard layout, keys map to the Greek letter printed on the same key,
+    // except on the English on-screen keyboard, where they stay Latin
+    const enKbd = S.stage === 'kbd' && S.kbdLang === 'en';
+    if (LATIN_TO_GREEK[ch] && !enKbd) ch = LATIN_TO_GREEK[ch];
     const A = AB;
     const isNum = S.stage === 'numbers' && /[0-9+−×÷=,.]/.test(ch);
-    const ok = A.letters.includes(ch) || isNum || (S.stage === 'kbd' && (/[0-9]/.test(ch) || A.punct.includes(ch)));
+    const ok = A.letters.includes(ch) || isNum || (enKbd && /[A-Z]/.test(ch)) ||
+      (S.stage === 'kbd' && (/[0-9]/.test(ch) || (enKbd ? A.punctEn : A.punct).includes(ch)));
     if (!ok) return;
     e.preventDefault();
     if (S.stage === 'stencil') {
