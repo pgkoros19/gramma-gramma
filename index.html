@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Ηλεκτρονικός ελληνικός γραμματοπίνακας για επικοινωνία με γράμματα: στένσιλ, πίνακας, πληκτρολόγιο, μαθήματα και πρόοδος.">
-<meta name="theme-color" content="#276468">
+<meta name="theme-color" content="#3E7D4F">
 <meta name="apple-mobile-web-app-title" content="Γράμμα Γράμμα">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
@@ -630,6 +630,65 @@ body.locked .lockable { pointer-events: none; opacity: .38; }
 .tab b { display: block; font-size: 18px; font-weight: 600; letter-spacing: .04em; }
 .tab small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .1em; text-transform: uppercase; }
 .tab[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+/* large Read / Delete / cursor keys: under the sheet, or beside it when that leaves bigger letters */
+.stage-in { display: flex; flex-direction: column; align-items: center; gap: var(--bb-gap, 12px); }
+.stage-in.bar-side { flex-direction: row; align-items: stretch; }
+.stage-in.cards { width: 100%; height: 100%; }
+.bar-side .bigbar { min-height: 260px; }
+.bigbar {
+  align-self: stretch;
+  display: grid;
+  gap: 10px;
+  height: var(--bb-h, 90px);
+  min-width: min(100%, 440px);
+  grid-template-columns: 1fr 1fr 1.6fr 2.4fr;
+  grid-template-areas: "left right back say";
+}
+.bar-side .bigbar {
+  height: auto;
+  min-width: 0;
+  width: var(--bb-w, 180px);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1.5fr 1fr .8fr;
+  grid-template-areas: "say say" "back back" "left right";
+}
+.bigbar .key {
+  width: auto;
+  height: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--key-bg);
+  color: var(--key-ink);
+  box-shadow: 0 4px 0 var(--key-edge), inset 0 0 0 2px var(--line);
+  font-size: var(--bb-fs, 20px);
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+/* on the keyboard the bar also carries the space and the language key, so the keyboard loses a row */
+.bigbar .bk-space, .bigbar .bk-lang { display: none; }
+.bigbar.with-space .bk-space, .bigbar.with-space .bk-lang { display: flex; }
+.bigbar.with-space {
+  grid-template-columns: .9fr 1fr 1fr 2.6fr 1.6fr 2.4fr;
+  grid-template-areas: "lang left right space back say";
+}
+.bar-side .bigbar.with-space {
+  grid-template-rows: 1.5fr 1fr 1fr .8fr .6fr;
+  grid-template-areas: "say say" "back back" "space space" "left right" "lang lang";
+}
+.bigbar .bk-space { grid-area: space; }
+.bigbar .bk-lang { grid-area: lang; color: var(--muted); }
+.bigbar .key .ico { width: 1.6em; height: 1.6em; stroke-width: 2.2; }
+.bigbar .bk-say { grid-area: say; background: var(--accent); color: var(--accent-ink); box-shadow: 0 4px 0 var(--key-edge); }
+.bigbar .bk-back { grid-area: back; }
+.bigbar .bk-left { grid-area: left; }
+.bigbar .bk-right { grid-area: right; }
+.output { cursor: text; }
 
 .sheet {
   position: relative;
@@ -1263,11 +1322,21 @@ input[type="range"] { accent-color: var(--accent); }
   <header class="topbar">
     <div class="wrap topbar-in">
       <div class="brand">
-        <svg class="mark" viewBox="0 0 34 34" aria-hidden="true">
-          <rect x="1" y="1" width="32" height="32" rx="9" style="fill: var(--accent)"/>
-          <rect x="7" y="9" width="20" height="18" rx="4.5" style="fill: var(--surface)"/>
-          <path d="M13.5 22V14h7.5" style="fill: none; stroke: var(--accent)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M13 1h8v2.6a4 4 0 0 1-8 0z" style="fill: var(--surface)" opacity=".55"/>
+        <svg class="mark" viewBox="0 0 512 512" aria-hidden="true">
+          <rect x="16" y="16" width="480" height="480" rx="112" style="fill: var(--raised); stroke: var(--accent)" stroke-width="16"/>
+          <g style="stroke: var(--accent)" stroke-width="14">
+            <rect x="80" y="80" width="160" height="160" rx="32" style="fill: var(--surface)"/>
+            <rect x="272" y="80" width="160" height="160" rx="32" style="fill: var(--surface)"/>
+            <rect x="80" y="272" width="160" height="160" rx="32" fill="#F2A93B"/>
+            <rect x="272" y="272" width="160" height="160" rx="32" style="fill: var(--surface)"/>
+          </g>
+          <g fill="none" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" style="stroke: var(--accent)">
+            <path d="M118 210L160 110L202 210M134 172H186"/>
+            <path d="M322 110V210H358A26 26 0 0 0 358 158H322M322 158H352A24 24 0 0 0 352 110H322"/>
+            <path d="M352 302L398 400H306Z"/>
+          </g>
+          <path d="M136 402V302H190" fill="none" stroke="#FFFFFF" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="234" cy="424" r="40" stroke-width="14" style="fill: var(--accent); stroke: var(--surface)"/>
         </svg>
         <div class="brand-text"><span class="brand-name">Γράμμα Γράμμα</span><span class="brand-sub">επικοινωνία με γράμματα</span></div>
       </div>
@@ -1363,7 +1432,27 @@ input[type="range"] { accent-color: var(--accent); }
 
     <main class="board-area" id="board-area">
       <div class="stage" id="stage">
-        <div class="sheet" id="sheet"></div>
+        <div class="stage-in" id="stage-in">
+          <div class="sheet" id="sheet"></div>
+          <div class="bigbar" id="bigbar" hidden>
+            <button type="button" class="key bk-say" data-act="say" aria-label="Διάβασε τη φράση">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg><span>Διάβασε</span>
+            </button>
+            <button type="button" class="key bk-back" data-act="back" aria-label="Σβήσε">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z"/><path d="M12 9l6 6M18 9l-6 6"/></svg><span>Σβήσε</span>
+            </button>
+            <button type="button" class="key bk-left" data-act="left" aria-label="Κέρσορας ένα γράμμα πίσω">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button type="button" class="key bk-right" data-act="right" aria-label="Κέρσορας ένα γράμμα μπροστά">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+            <button type="button" class="key bk-space" data-act="space" aria-label="Κενό">
+              <svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4h16v-4"/></svg><span>Κενό</span>
+            </button>
+            <button type="button" class="key bk-lang" data-act="lang" aria-label="Γλώσσα γραμμάτων"><span id="bk-lang">EN</span></button>
+          </div>
+        </div>
       </div>
       <div class="tabs" id="tabs" role="group" aria-label="Στένσιλ"></div>
     </main>
@@ -1529,6 +1618,8 @@ input[type="range"] { accent-color: var(--accent); }
       <label class="field" for="set-lock"><span>Παύση μετά την επιλογή<small>Αγνοεί δεύτερο άγγιγμα που έρχεται αμέσως μετά.</small></span>
         <select id="set-lock"><option value="0">Καμία</option><option value="300">0,3 δευτ.</option><option value="600">0,6 δευτ.</option><option value="1000">1 δευτ.</option></select></label>
       <label class="field" for="set-spaceOnBoard"><span>Πλήκτρο κενού στα στένσιλ και στον πίνακα<small>Το πληκτρολόγιο έχει πάντα κενό.</small></span><input type="checkbox" class="sw" id="set-spaceOnBoard"></label>
+      <label class="field" for="set-bigBar"><span>Μεγάλα κουμπιά Διάβασε, Σβήσε και βελάκια<small>Δίπλα ή κάτω από στένσιλ, πίνακα και πληκτρολόγιο. Τα βελάκια μετακινούν τον κέρσορα για διόρθωση. Μπορείς και να αγγίξεις το κείμενο εκεί που θέλεις να διορθώσεις.</small></span><input type="checkbox" class="sw" id="set-bigBar"></label>
+      <label class="field" for="set-kbdNums"><span>Αριθμοί στο πληκτρολόγιο<small>Χωρίς τη σειρά των αριθμών τα γράμματα μεγαλώνουν. Οι αριθμοί υπάρχουν και στον πίνακα Αριθμοί.</small></span><input type="checkbox" class="sw" id="set-kbdNums"></label>
     </div>
     <div class="group">
       <h3>Πρόβλεψη λέξεων</h3>
@@ -1570,7 +1661,7 @@ input[type="range"] { accent-color: var(--accent); }
       <ol>
         <li><strong>Στένσιλ.</strong> Λίγα, μεγάλα γράμματα σε κάθε πλαίσιο: 4, 8 ή 12. Το κενό βρίσκεται πάντα στη δεξιά πλευρά. Ο συνεργάτης αλλάζει πλαίσιο από τις καρτέλες ή με τα βέλη.</li>
         <li><strong>Πίνακας.</strong> Όλο το αλφάβητο σε τρεις σειρές, με την ίδια σειρά που είχαν τα στένσιλ των 8.</li>
-        <li><strong>Πληκτρολόγιο.</strong> Διάταξη πληκτρολογίου με αριθμούς, στίξη και διαγραφή. Το πλήκτρο <strong>EN</strong> δίπλα στο κενό αλλάζει σε αγγλικό πληκτρολόγιο (QWERTY) και το <strong>ΕΛ</strong> γυρίζει στα ελληνικά. Τα αγγλικά διαβάζονται με αγγλική φωνή, αν υπάρχει στη συσκευή.</li>
+        <li><strong>Πληκτρολόγιο.</strong> Διάταξη πληκτρολογίου με αριθμούς, στίξη και διαγραφή. Το πλήκτρο <strong>EN</strong> αλλάζει σε αγγλικά γράμματα (στο πληκτρολόγιο QWERTY) και το <strong>ΕΛ</strong> γυρίζει στα ελληνικά. Η αλλαγή ισχύει μαζί για στένσιλ, πίνακα και πληκτρολόγιο· στα στένσιλ το EN είναι κάτω από τις καρτέλες τους, στον πίνακα και στο πληκτρολόγιο δίπλα στο κενό. Τα αγγλικά διαβάζονται με αγγλική φωνή, αν υπάρχει στη συσκευή.</li>
       </ol>
       <p>Στο «Άλλοι πίνακες» υπάρχουν αριθμοί, Ναι / Όχι, συναισθήματα, κλίμακα πόνου, γραπτές επιλογές και έτοιμες φράσεις.</p>
     </div>
@@ -1634,7 +1725,7 @@ input[type="range"] { accent-color: var(--accent); }
       large: chunk('ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ', 12)
     },
     cols: { small: 2, std: 3, large: 4 },
-    sizeLabel: { small: '4 γράμματα · 6 στένσιλ', std: '8 γράμματα · 3 στένσιλ', large: '12 γράμματα · 2 στένσιλ' },
+    sizeLabel: { small: '4 γράμματα · 6 στένσιλ (αγγλικά 7)', std: '8 γράμματα · 3 στένσιλ (αγγλικά 9 γράμματα)', large: '12 γράμματα · 2 στένσιλ (αγγλικά 13 γράμματα)' },
     board: ['ΑΒΓΔΕΖΗΘ', 'ΙΚΛΜΝΞΟΠ', 'ΡΣΤΥΦΧΨΩ'],
     kbd: ['1234567890', 'ΕΡΤΥΘΙΟΠ', 'ΑΣΔΦΓΗΞΚΛ', 'ΖΧΨΩΒΝΜ'],
     punct: [',', '.', ';'],
@@ -1643,6 +1734,21 @@ input[type="range"] { accent-color: var(--accent); }
     punctEn: [',', '.', '?'],
     space: 'κενό',
     sample: 'Γεια σου, είμαι η φωνή που θα διαβάζει τα γράμματα.'
+  };
+  // 26 letters do not divide like the Greek 24, so the stencils take them as evenly as they can
+  const splitEven = (s, n) => {
+    const a = [...s], out = [];
+    for (let k = 0, i = 0; k < n; k++) { const len = Math.ceil((a.length - i) / (n - k)); out.push(a.slice(i, i + len).join('')); i += len; }
+    return out;
+  };
+  const EN = {
+    letters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    sets: {
+      small: splitEven('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 7),
+      std: splitEven('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 3),
+      large: splitEven('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 2)
+    },
+    board: ['ABCDEFGHI', 'JKLMNOPQR', 'STUVWXYZ']
   };
   const GREEK_NAMES = {
     'Α': 'άλφα', 'Β': 'βήτα', 'Γ': 'γάμμα', 'Δ': 'δέλτα', 'Ε': 'έψιλον', 'Ζ': 'ζήτα', 'Η': 'ήτα', 'Θ': 'θήτα',
@@ -1763,13 +1869,17 @@ input[type="range"] { accent-color: var(--accent); }
   /* ---------- per-student state ---------- */
   const DEFAULTS = {
     predict: true, predMin: 2, autoSpace: true,
-    stage: 'stencil', stencil: 0, setSize: 'std', support: 'stand', skin: 'classic',
+    stage: 'stencil', stencil: 0, setSize: 'std', support: 'stand', skin: 'garden',
     speakLetter: true, speakWord: true, voiceEl: '', rate: 0.9, pitch: 1,
+    // kbdLang: the letters of the stencils, the board and the keyboard, 'el' or 'en'
     size: 100, hold: 0, lock: 300, spaceOnBoard: true, kbdLang: 'el',
+    // bigBar: large Read / Delete / cursor keys beside every letter board; kbdNums: digit row on the keyboard
+    bigBar: true, kbdNums: false,
     lower: false, hc: false, calm: false, choices: [], period: 7
   };
   let S, text, log, learned, customText, customMap, phrases, events, sessions, run;
   let charEv = [];        // the letter event behind each character of `text` (null for spaces, predictions…)
+  let cur = 0;            // the cursor: letters are added and deleted here, not only at the end
   let curSession = null;
   let lessons = LS.get('lessons', null);
   if (!Array.isArray(lessons)) { lessons = [SAMPLE_LESSON]; LS.set('lessons', lessons); }
@@ -1798,8 +1908,10 @@ input[type="range"] { accent-color: var(--accent); }
     pid = profiles.some(p => p.id === id) ? id : profiles[0].id;
     LS.set('current', pid);
     S = Object.assign({}, DEFAULTS, PG('settings', {}));
+    if (!SKINS.some(s => s.id === S.skin)) S.skin = DEFAULTS.skin;
     text = PG('draft', '');
     charEv = [...text].map(() => null);
+    cur = text.length;
     log = PG('log', null);
     if (!Array.isArray(log)) {
       const now = Date.now();
@@ -1865,16 +1977,24 @@ input[type="range"] { accent-color: var(--accent); }
     e.n++;
     PS('learn', learned);
   }
-  // the word being spelled right now; '' at a word start, null if it holds digits or punctuation
+  // the word being spelled right now, up to the cursor; '' at a word start, null if it holds
+  // digits or punctuation or the cursor sits inside a word
+  const before = () => text.slice(0, cur);
   function currentWord() {
-    const w = text.slice(text.lastIndexOf(' ') + 1);
+    if (/\p{L}/u.test(text[cur] || '')) return null;
+    const b = before();
+    const w = b.slice(b.lastIndexOf(' ') + 1);
     return /^\p{L}*$/u.test(w) ? w : null;
   }
 
   const stage = $('stage'), sheet = $('sheet'), tabs = $('tabs'), output = $('output'), area = $('board-area');
+  const stageIn = $('stage-in'), bigbar = $('bigbar');
 
   /* ---------- letter layouts ---------- */
-  const groups = () => AB.sets[S.setSize] || AB.sets.std;
+  const english = () => S.kbdLang === 'en';
+  const groups = () => { const sets = english() ? EN.sets : AB.sets; return sets[S.setSize] || sets.std; };
+  function toggleLang() { S.kbdLang = english() ? 'el' : 'en'; save(); render(); }
+  const langKey = () => ({ act: 'lang', w: 1.5, label: english() ? 'ΕΛ' : 'EN', fn: true });
   function layout() {
     const A = AB;
     const letters = s => [...s].map(ch => ({ ch }));
@@ -1893,22 +2013,25 @@ input[type="range"] { accent-color: var(--accent); }
       return { kind: 'stencil', gap: .16, rows, side, max: S.setSize === 'small' ? 300 : 260 };
     }
     if (S.stage === 'board') {
-      const rows = A.board.map(letters);
-      if (S.spaceOnBoard) rows.push([{ act: 'space', w: 4, label: A.space }]);
-      return { kind: 'board', gap: .16, rows, max: 160 };
+      const rows = (english() ? EN.board : A.board).map(letters);
+      rows.push(S.spaceOnBoard ? [langKey(), { act: 'space', w: 4, label: A.space }] : [langKey()]);
+      return { kind: 'board', gap: .16, rows, max: 200 };
     }
     if (S.stage === 'numbers') {
       const rows = NUM_ROWS.map(r => [...r].map(ch => ({ ch, raw: true, op: '+−×÷'.includes(ch) })));
       rows.push([{ ch: '=', raw: true, op: true }, { act: 'space', w: 3, label: A.space }]);
-      return { kind: 'board', gap: .16, rows, max: 150 };
+      return { kind: 'board', gap: .16, rows, max: 190 };
     }
-    const en = S.kbdLang === 'en';
-    const rows = (en ? A.kbdEn : A.kbd).map(letters);
+    const en = english();
+    // without the digit row the letters get a fifth more height
+    const rows = (en ? A.kbdEn : A.kbd).slice(S.kbdNums ? 0 : 1).map(letters);
+    const top = S.kbdNums ? 1 : 0;
     // QWERTY's top row is already ten letters long, so its delete key goes one row down
-    rows[en ? 2 : 1].push({ act: 'back', w: 1.5, html: ICON_BACK, label: 'σβήσιμο', fn: true });
-    rows[3].push(...(en ? A.punctEn : A.punct).map(ch => ({ ch, fn: true })));
-    rows.push([{ act: 'lang', w: 1.5, label: en ? 'ΕΛ' : 'EN', fn: true }, { act: 'space', w: 6, label: A.space }]);
-    return { kind: 'kbd', gap: .12, rows, max: 110 };
+    rows[top + (en ? 1 : 0)].push({ act: 'back', w: 1.5, html: ICON_BACK, label: 'σβήσιμο', fn: true });
+    rows[top + 2].push(...(en ? A.punctEn : A.punct).map(ch => ({ ch, fn: true })));
+    // with the big keys on, the space and the language key live in the big bar
+    if (!S.bigBar) rows.push([langKey(), { act: 'space', w: 6, label: A.space }]);
+    return { kind: 'kbd', gap: .12, rows, max: 160 };
   }
   // which stencil shape gives bigger letters in the space the stage has right now
   function spaceOnSide(cols, rows) {
@@ -2097,6 +2220,13 @@ input[type="range"] { accent-color: var(--accent); }
           b.addEventListener('click', () => setStencil(i));
           tabs.appendChild(b);
         });
+        const lb = document.createElement('button');
+        lb.type = 'button';
+        lb.className = 'tab';
+        lb.id = 'tab-lang';
+        lb.innerHTML = `<span><b>${english() ? 'ΕΛ' : 'EN'}</b><small>${english() ? 'Ελληνικά' : 'Αγγλικά'}</small></span>`;
+        lb.addEventListener('click', toggleLang);
+        tabs.appendChild(lb);
       }
     }
     document.querySelectorAll('[data-stage]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.stage === S.stage)));
@@ -2108,6 +2238,10 @@ input[type="range"] { accent-color: var(--accent); }
   }
 
   function fit() {
+    stageIn.classList.toggle('cards', !current);
+    bigbar.hidden = !current || !S.bigBar;
+    bigbar.classList.toggle('with-space', !!current && current.kind === 'kbd');
+    $('bk-lang').textContent = english() ? 'ΕΛ' : 'EN';
     if (!current) { fitCards(); return; }
     // turning the device can make the other stencil shape the better one
     if (current.kind === 'stencil' && S.spaceOnBoard) {
@@ -2129,8 +2263,24 @@ input[type="range"] { accent-color: var(--accent); }
     if (current.side) cols += g + current.side.w;
     const n = current.rows.length;
     const rowsU = n + g * (n - 1);
-    let k = Math.min(W / (cols + pad), H / (rowsU + pad + extraTop));
-    k = Math.min(k, current.max) * (S.size / 100);
+    const keyFor = (w, h) => Math.min(w / (cols + pad), h / (rowsU + pad + extraTop), current.max);
+    let k = keyFor(W, H);
+    if (S.bigBar) {
+      // the big keys go under the sheet or beside it, whichever leaves the letters bigger
+      const gp = 14;
+      const bh = Math.round(Math.max(64, Math.min(120, H * .15)));
+      const bw = Math.round(Math.max(150, Math.min(240, W * .17)));
+      const kBottom = keyFor(W, H - bh - gp), kSide = keyFor(W - bw - gp, H);
+      const side = kSide > kBottom;
+      stageIn.classList.toggle('bar-side', side);
+      k = side ? kSide : kBottom;
+      const st = document.documentElement.style;
+      st.setProperty('--bb-h', bh + 'px');
+      st.setProperty('--bb-w', bw + 'px');
+      st.setProperty('--bb-gap', gp + 'px');
+      st.setProperty('--bb-fs', Math.round(Math.max(16, Math.min(28, side ? bw * .12 : bh * .22))) + 'px');
+    }
+    k *= S.size / 100;
     k = Math.max(18, Math.floor(k));
     document.documentElement.style.setProperty('--key', k + 'px');
     document.documentElement.style.setProperty('--gap', Math.round(k * g) + 'px');
@@ -2151,23 +2301,34 @@ input[type="range"] { accent-color: var(--accent); }
       return;
     }
     const d = shown(text);
-    if (fresh && d.trim()) {
-      output.innerHTML = esc(d.slice(0, -1)) + '<span class="fresh">' + esc(d.slice(-1)) + '</span><span class="caret"></span>';
-    } else {
-      output.innerHTML = esc(d) + '<span class="caret"></span>';
+    // one span per character, so a tap on the text can put the cursor between two letters
+    const c = d.length === text.length ? cur : d.length;
+    let h = '';
+    for (let i = 0; i <= d.length; i++) {
+      if (i === c) h += '<span class="caret"></span>';
+      if (i < d.length) h += `<span data-i="${i}"${fresh && i === c - 1 && d[i].trim() ? ' class="fresh"' : ''}>${esc(d[i])}</span>`;
     }
-    output.scrollTop = output.scrollHeight;
+    output.innerHTML = h;
+    if (c === d.length) output.scrollTop = output.scrollHeight;
+    else output.querySelector('.caret').scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
-  function pushText(str, ev = null) { for (const ch of str) { text += ch; charEv.push(ev); } }
-  function popText(n = 1) {
-    for (let i = 0; i < n && text; i++) {
-      const ev = charEv.pop();
-      text = text.slice(0, -1);
-      if (ev && !ev.del) { ev.del = true; if (curSession) curSession.del++; }
+  function pushText(str, ev = null) {
+    for (const ch of str) { text = text.slice(0, cur) + ch + text.slice(cur); charEv.splice(cur, 0, ev); cur++; }
+  }
+  // deletes the n characters before the cursor; keep: replaced by a prediction, so not counted as deletions
+  function popText(n = 1, keep) {
+    for (let i = 0; i < n && cur > 0; i++) {
+      const ev = charEv.splice(cur - 1, 1)[0];
+      text = text.slice(0, cur - 1) + text.slice(cur);
+      cur--;
+      if (ev && !ev.del && !keep) { ev.del = true; if (curSession) curSession.del++; }
     }
   }
+  // after a word or a punctuation mark: step over a space that is already there instead of adding another
+  function spaceAfter() { if (text[cur] === ' ') cur++; else pushText(' '); }
+  function moveCursor(i) { cur = Math.max(0, Math.min(text.length, i)); drawOutput(); renderPreds(); }
   function commit(fresh) { LS.set(pk('draft'), text); drawOutput(fresh); renderPreds(); saveActivity(); }
-  function clearText() { text = ''; charEv = []; commit(); }
+  function clearText() { text = ''; charEv = []; cur = 0; commit(); }
 
   /* activity: a session is a stretch of use with no gap longer than 20 minutes */
   function touchSession() {
@@ -2208,12 +2369,12 @@ input[type="range"] { accent-color: var(--accent); }
   function addChar(ch, raw) {
     const isLetter = /\p{L}/u.test(ch);
     const tgt = targetAnswer();
-    const ok = tgt != null && isLetter ? tgt[text.length] === ch : null;
+    const ok = tgt != null && isLetter ? tgt[cur] === ch : null;
     const ev = logLetter(ch, ok);
     // punctuation sits right after the word, then a space follows it
     if (!raw && !isLetter && !/[0-9]/.test(ch)) {
-      if (text.endsWith(' ')) popText(1);
-      pushText(ch, ev); pushText(' ');
+      if (before().endsWith(' ')) popText(1, true);
+      pushText(ch, ev); spaceAfter();
     } else pushText(ch, ev);
     commit(true);
     sayChar(ch);
@@ -2227,9 +2388,10 @@ input[type="range"] { accent-color: var(--accent); }
     }
   }
   function addSpace(queued) {
-    if (!text || text.endsWith(' ')) return;
-    const word = text.split(' ').pop();
-    pushText(' ');
+    const b = before();
+    if (!b || b.endsWith(' ')) return;
+    const word = b.split(' ').pop();
+    spaceAfter();
     touchSession().words++;
     commit();
     learnWord(keyOf(word));
@@ -2238,23 +2400,22 @@ input[type="range"] { accent-color: var(--accent); }
   function acceptPrediction(form, k) {
     const w = currentWord();
     if (w === null) return;
-    popTextKeep(w.length);
-    pushText(plainUpper(form) + ' ');
+    popText(w.length, true);
+    pushText(plainUpper(form)); spaceAfter();
     touchSession().words++;
     commit();
     learnWord(k, form);
     if (S.speakWord) say(spoken(form));
   }
-  // replacing a partial word with its prediction is not a deletion
-  function popTextKeep(n) { for (let i = 0; i < n; i++) { charEv.pop(); text = text.slice(0, -1); } }
   function insertWord(word, sayText) {
-    if (text && !text.endsWith(' ')) pushText(' ');
-    pushText(word + ' ');
+    const b = before();
+    if (b && !b.endsWith(' ')) pushText(' ');
+    pushText(word); spaceAfter();
     touchSession().words++;
     commit();
     say(sayText || spoken(word));
   }
-  function backspace() { if (text) { popText(1); commit(); } }
+  function backspace() { if (cur > 0) { popText(1); commit(); } }
   const spoken = t => withForms(t).replace(/;/g, '?').replace(/(\d+)\/10/g, '$1 στα 10');
 
   const predbar = $('predbar');
@@ -2348,7 +2509,7 @@ input[type="range"] { accent-color: var(--accent); }
 
   /* ---------- touch: select on lift, over the same key ---------- */
   let active = null, lastSel = 0;
-  const target = e => e.target.closest && e.target.closest('#sheet .key, #predbar .pred');
+  const target = e => e.target.closest && e.target.closest('#sheet .key, #bigbar .key, #predbar .pred');
   document.addEventListener('pointerdown', e => {
     const k = target(e);
     if (!k || active) return;
@@ -2383,11 +2544,14 @@ input[type="range"] { accent-color: var(--accent); }
     if (now - lastSel < S.lock) return;
     lastSel = now;
     flash(k);
-    if (k.dataset.act === 'lang') { S.kbdLang = S.kbdLang === 'en' ? 'el' : 'en'; save(); render(); return; }
+    if (k.dataset.act === 'lang') { toggleLang(); return; }
     if (k.classList.contains('pred')) acceptPrediction(k.dataset.word, k.dataset.key);
     else if (k.dataset.word) insertWord(k.dataset.word, k.dataset.say);
     else if (k.dataset.act === 'space') addSpace();
     else if (k.dataset.act === 'back') backspace();
+    else if (k.dataset.act === 'say') say(spoken(text));
+    else if (k.dataset.act === 'left') moveCursor(cur - 1);
+    else if (k.dataset.act === 'right') moveCursor(cur + 1);
     else addChar(k.dataset.ch, k.dataset.raw === '1');
   }
   function flash(k) {
@@ -2426,6 +2590,14 @@ input[type="range"] { accent-color: var(--accent); }
   $('btn-space').addEventListener('click', () => addSpace());
   $('btn-back').addEventListener('click', backspace);
   $('btn-say').addEventListener('click', () => say(spoken(text)));
+  // a tap on the text puts the cursor before or after the letter that was touched
+  output.addEventListener('click', e => {
+    if (!text) return;
+    const s = e.target.closest('[data-i]');
+    if (!s) return moveCursor(text.length);
+    const r = s.getBoundingClientRect();
+    moveCursor(+s.dataset.i + (e.clientX > r.left + r.width / 2 ? 1 : 0));
+  });
   $('btn-save').addEventListener('click', saveEntry);
 
   function armButton(btn, label, onConfirm) {
@@ -2826,6 +2998,8 @@ input[type="range"] { accent-color: var(--accent); }
       <path d="${area}" ${pal ? `fill="${pal.area}"` : 'class="ar"'}/><path d="${d}" ${pal ? `fill="none" stroke="${pal.line}" stroke-width="2"` : 'class="ln"'}/>
       <line class="cross" id="cross" x1="0" x2="0" y1="${T}" y2="${H - B}" visibility="hidden"/>${dots}${lab}${hits}</svg>`;
   }
+  // the English letters join the per-letter grid once the student has used any of them
+  const shownLetters = st => AB.letters + (Object.keys(st.perLetter).some(c => /[A-Z]/.test(c)) ? EN.letters : '');
   function renderProgress() {
     document.querySelectorAll('[data-period]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.period === S.period)));
     const st = stats(S.period);
@@ -2858,7 +3032,7 @@ input[type="range"] { accent-color: var(--accent); }
       });
       svg.addEventListener('pointerleave', () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); });
     }
-    const A = AB.letters;
+    const A = shownLetters(st);
     $('pr-letters').innerHTML = [...A].map(ch => {
       const p = st.perLetter[ch];
       if (!p) return `<div class="lcell none" title="${ch}: δεν επιλέχθηκε"><b>${ch}</b><span>—</span></div>`;
@@ -2955,8 +3129,8 @@ input[type="range"] { accent-color: var(--accent); }
     const tiles = [[st.sessions, 'συνεδρίες'], [st.letters, 'γράμματα'], [num1(st.lpm), 'γράμματα / λεπτό'], [pct(st.knownRate), 'σωστές γνωστές'], [pct(st.standRate), 'ταμπλέτα σε βάση']]
       .map(([v, l]) => `<div class="ptile"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
     const chart = chartSVG(st.points.slice(-24), { grid: '#e3e8e5', text: '#5b6966', line: '#276468', area: 'rgba(39,100,104,.12)' });
-    const A = AB.letters;
-    const lg = [...A].map(ch => {
+    const A = shownLetters(st);
+    const lg =[...A].map(ch => {
       const p = st.perLetter[ch];
       return `<div><b>${ch}</b>${p ? `${pct(1 - p.del / p.n)}<br><span class="sub">${p.n}×</span>` : '<span class="sub">—</span>'}</div>`;
     }).join('');
@@ -3236,9 +3410,11 @@ input[type="range"] { accent-color: var(--accent); }
   holdButton(breakExit, 1000, () => { $('break').hidden = true; clearInterval(breakTimer); });
 
   /* ---------- settings ---------- */
-  const checks = ['speakLetter', 'speakWord', 'spaceOnBoard', 'lower', 'hc', 'calm', 'predict', 'autoSpace'];
+  const checks = ['speakLetter', 'speakWord', 'spaceOnBoard', 'bigBar', 'kbdNums', 'lower', 'hc', 'calm', 'predict', 'autoSpace'];
   const afterCheck = {
     spaceOnBoard: render,
+    bigBar: render,
+    kbdNums: render,
     lower: () => { drawOutput(); renderLog(); renderPreds(); },
     hc: applyBody, calm: applyBody, predict: renderPreds
   };
@@ -3247,8 +3423,8 @@ input[type="range"] { accent-color: var(--accent); }
     el.addEventListener('change', () => { S[key] = el.checked; save(); afterCheck[key] && afterCheck[key](); });
   });
   // swatches are fixed colours: they show what each theme looks like, not the current one
+  // the plain white theme ('classic') was removed: students who had it get the garden
   const SKINS = [
-    { id: 'classic', name: 'Κλασικό', sw: ['#edf1ee', '#276468', '#a3bcd2'] },
     { id: 'notebook', name: 'Τετράδιο', sw: ['#FBF8F1', '#2F5FA8', '#F6D9A8'] },
     { id: 'aegean', name: 'Αιγαίο', sw: ['#EAF4FA', '#1F6FA3', '#FFE6A3'] },
     { id: 'garden', name: 'Κήπος', sw: ['#EFF4EA', '#3E7D4F', '#F4C9D6'] }
@@ -3263,7 +3439,8 @@ input[type="range"] { accent-color: var(--accent); }
     S.skin = b.dataset.skin; save(); applyBody(); renderSkins();
   });
   function applyBody() {
-    document.body.dataset.skin = SKINS.some(s => s.id === S.skin) ? S.skin : 'classic';
+    if (!SKINS.some(s => s.id === S.skin)) S.skin = 'garden';
+    document.body.dataset.skin = S.skin;
     document.body.classList.toggle('hc', S.hc);
     document.body.classList.toggle('calm', S.calm);
     document.body.classList.toggle('nohold', !S.hold);
@@ -3340,17 +3517,20 @@ input[type="range"] { accent-color: var(--accent); }
     if (S.stage === 'stencil' && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) {
       setStencil(S.stencil + (e.key === 'ArrowRight' ? 1 : -1)); return;
     }
+    // elsewhere the arrows move the cursor in the text, as do Home and End everywhere
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); moveCursor(cur + (e.key === 'ArrowRight' ? 1 : -1)); return; }
+    if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); moveCursor(e.key === 'Home' ? 0 : text.length); return; }
     if (e.key.length !== 1) return;
     let ch = e.key.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
     if (S.stage === 'numbers' && KEY_ALIASES[ch]) ch = KEY_ALIASES[ch];
     // with a Latin keyboard layout, keys map to the Greek letter printed on the same key,
-    // except on the English on-screen keyboard, where they stay Latin
-    const enKbd = S.stage === 'kbd' && S.kbdLang === 'en';
-    if (LATIN_TO_GREEK[ch] && !enKbd) ch = LATIN_TO_GREEK[ch];
+    // except when the letters on screen are English, where they stay Latin
+    const en = english() && S.stage !== 'numbers';
+    if (LATIN_TO_GREEK[ch] && !en) ch = LATIN_TO_GREEK[ch];
     const A = AB;
     const isNum = S.stage === 'numbers' && /[0-9+−×÷=,.]/.test(ch);
-    const ok = A.letters.includes(ch) || isNum || (enKbd && /[A-Z]/.test(ch)) ||
-      (S.stage === 'kbd' && (/[0-9]/.test(ch) || (enKbd ? A.punctEn : A.punct).includes(ch)));
+    const ok = (en ? EN.letters : A.letters).includes(ch) || isNum ||
+      (S.stage === 'kbd' && (/[0-9]/.test(ch) || (en ? A.punctEn : A.punct).includes(ch)));
     if (!ok) return;
     e.preventDefault();
     if (S.stage === 'stencil') {
